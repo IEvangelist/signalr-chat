@@ -63,3 +63,10 @@ li.nav-item.no-click > div.nav-link:hover {
     color: rgb(170, 170, 170);
     background-image: none;
 }
+
+div#chat ul.list-group.list-group-flush.chat-messages > li {
+    color: #52575c;
+    background-color: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}

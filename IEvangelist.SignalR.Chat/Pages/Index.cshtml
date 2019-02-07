@@ -3,9 +3,11 @@
 
 <div id="chat" class="jumbotron">
 
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item" v-for="[key, value] in toArray(messages)">{{ value.text }}</li>
-    </ul>
+    <div class="pb-lg-4">
+        <ul class="list-group list-group-flush chat-messages">
+            <li class="list-group-item" v-for="[id, value] in toArray(messages)" v-bind:id="id">{{value.text}}</li>
+        </ul>
+    </div>
 
     <form v-on:submit.prevent="postMessage">
         <div class="form-group">

@@ -13,12 +13,13 @@
         },
         methods: {
             postMessage: function () {
-                connection.invoke('postMessage', this.message, this.messageId);
-                this.message = '';
+                if (this.message) {
+                    connection.invoke('postMessage', this.message, this.messageId);
+                    this.message = '';
+                }                
             },
-            toArray(map) {
-                const result = Array.from(map);
-                return result;
+            toArray(messages) {
+                return Array.from(messages);
             },
             nudge() {
                 this.$forceUpdate();
