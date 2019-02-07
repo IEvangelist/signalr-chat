@@ -1,3 +1,4 @@
+using IEvangelist.SignalR.Chat.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -32,6 +33,7 @@ namespace IEvangelist.SignalR.Chat
                     .AddGoogle(options => Configuration.GetSection("Authentication:Google").Bind(options));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,13 +51,12 @@ namespace IEvangelist.SignalR.Chat
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-
-            app.UseAuthentication();
-
-            app.UseMvc();
+            app.UseHttpsRedirection()
+               .UseStaticFiles()
+               .UseCookiePolicy()
+               .UseAuthentication()
+               .UseSignalR(routes => routes.MapHub<ChatHub>("/chat"))
+               .UseMvc();
         }
     }
 }
