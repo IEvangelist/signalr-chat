@@ -16,8 +16,13 @@ namespace IEvangelist.SignalR.Chat.Hubs
                 new
                 {
                     text = message,
-                    id = id ?? Guid.NewGuid().ToString(),
+                    id = UseOrCreateId(id),
                     user = UserName
                 });
+
+        static string UseOrCreateId(string id)
+            => string.IsNullOrWhiteSpace(id)
+                ? Guid.NewGuid().ToString()
+                : id;
     }
 }

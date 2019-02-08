@@ -15,7 +15,7 @@
             postMessage: function () {
                 if (this.message) {
                     connection.invoke('postMessage', this.message, this.messageId);
-                    this.message = '';
+                    this.message = this.messageId = '';
                 }                
             },
             toArray(messages) {
@@ -27,10 +27,19 @@
         }
     });
 
-    connection.on('messageReceived', function (json) {
+    connection.on('messageReceived', json => {
         app.messages.set(json.id, json);
         app.nudge();
     });
 
-    connection.start();
+    // Reconnect loop
+    const start = () => {
+        connection.start().catch(err => {
+            setTimeout(() => start(), 5000);
+        });
+    };
+
+    connection.onclose(() => start());
+
+    start();
 })();

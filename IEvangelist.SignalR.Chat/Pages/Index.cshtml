@@ -5,7 +5,10 @@
 
     <div class="pb-lg-4">
         <ul class="list-group list-group-flush chat-messages">
-            <li class="list-group-item" v-for="[id, value] in toArray(messages)" v-bind:id="id">{{value.text}}</li>
+            <li class="list-group-item" v-for="[id, value] in toArray(messages)" v-bind:id="id">
+                <span class="gutter pr-lg-2 text-muted">{{value.user}}</span>
+                <span class="message pl-lg-2">{{value.text}}</span>
+            </li>
         </ul>
     </div>
 
