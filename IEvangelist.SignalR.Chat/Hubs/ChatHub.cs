@@ -9,7 +9,7 @@ namespace IEvangelist.SignalR.Chat.Hubs
     {
         string UserName => Context.User.Identity.Name;
 
-        [Authorize]
+        //[Authorize]
         public async Task PostMessage(string message, string id = null)
             => await Clients.All.SendAsync(
                 "MessageReceived",                

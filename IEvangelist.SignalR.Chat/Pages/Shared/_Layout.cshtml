@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html style="height: 100%">
+<html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,34 +22,30 @@
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
           crossorigin="anonymous">
 </head>
-<body style="height: 100%">
+<body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary box-shadow mb-3">
             <div class="container">
-                IEvangelist.SignalR.Chat
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <div class="sig-header">
+                    <div class="logo-container">
+                        <div class="logo">
+                            <svg viewBox="0 0 275 275" id="signalr-svg"  xmlns="http://www.w3.org/2000/svg"><path d="M135 0a135 135 0 1 0 42.59 263.14l-67-67 13.79-38.59h36.5a22.56 22.56 0 0 0 0-45.12H52.11v-1l55.76-55.75h1V74h52a60.89 60.89 0 0 1 2.93 121.7l49.36 49.37A135 135 0 0 0 135 0z" /></svg>
+                        </div>
+                        <div>
+                            <span>IEvangelist.SignalR.Chat</span>
+                        </div>
+                    </div>
                     <partial name="_LoginPartial" />
-                    <ul class="navbar-nav flex-grow-1"></ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div>
         <partial name="_CookieConsentPartial" />
-        <main role="main" class="pb-3">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2019 - IEvangelist.SignalR.Chat
-        </div>
-    </footer>
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>

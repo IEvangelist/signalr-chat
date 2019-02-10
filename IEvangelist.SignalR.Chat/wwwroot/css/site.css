@@ -7,15 +7,29 @@ a.navbar-brand {
   word-break: break-all;
 }
 
+.btn-primary {
+    background-image: none;
+    background-color: #7DB2D6;
+    border: solid 1px #7DB2D6;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
+    margin: 0;
+    padding: 0;
   font-size: 14px;
 }
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
 .border-top {
@@ -41,20 +55,6 @@ html {
   min-height: 100%;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
-}
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  line-height: 60px; /* Vertically center the text there */
-}
-
 li.nav-item.no-click > div.nav-link {
     cursor: default;
 }
@@ -65,10 +65,11 @@ li.nav-item.no-click > div.nav-link:hover {
 }
 
 div#chat ul.list-group.list-group-flush.chat-messages > li {
-    color: #52575c;
-    background-color: #fff;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    color: #aaa;
+    text-align: left;
+    background-color: #3A3F44;
+    margin: 5px 40px;
+    border-radius: 5px;
 }
 
 .gutter {
@@ -80,3 +81,62 @@ div#chat ul.list-group.list-group-flush.chat-messages > li {
 .message {
 
 }
+
+.chat {
+    width: 100vw;
+    height: 100vh;
+    padding-top: 110px;
+}
+
+.chat-list {
+    overflow: hidden;
+    margin-bottom: 120px;
+}
+
+header {
+    position: fixed;
+    width: 100vw;
+    z-index: 1;
+}
+
+.sig-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    height: 100px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.logo {
+    width: 75px;
+    padding: 5px;
+}
+
+.logo > #signalr-svg {
+    fill: #7DB2D6;
+}
+
+.post-container {
+    position: fixed;
+    z-index:1;
+    width: 100%;
+    bottom: 0;
+    background: #3A3F44;
+    border-top: black solid 1px;
+    padding: 25px;
+}
+
+    .post-container input {
+        border: solid 2px #7DB2D6;
+        background-color: #3A3F44;
+    }
+
+    .post-container input:active {
+        background-color: white;
+    }
