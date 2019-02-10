@@ -64,12 +64,23 @@ li.nav-item.no-click > div.nav-link:hover {
     background-image: none;
 }
 
-div#chat ul.list-group.list-group-flush.chat-messages > li {
+.chat-messages > li {
     color: #aaa;
     text-align: left;
     background-color: #3A3F44;
     margin: 5px 40px;
     border-radius: 5px;
+}
+
+.list-enter-active,
+.list-leave-active {
+    transition: all .3s ease-out;
+}
+
+.list-enter,
+.list-leave-to {
+    opacity: 0;
+    transform: translateY(-40px);
 }
 
 .gutter {

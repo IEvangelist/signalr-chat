@@ -29,10 +29,10 @@ namespace IEvangelist.SignalR.Chat
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            //services.AddAuthentication("Cookies")
-            //        .AddCookie()
-            //        .AddTwitter(options => Configuration.GetSection("Authentication:Twitter").Bind(options))
-            //        .AddGoogle(options => Configuration.GetSection("Authentication:Google").Bind(options));
+            services.AddAuthentication("Cookies")
+                    .AddCookie()
+                    .AddTwitter(options => Configuration.GetSection("Authentication:Twitter").Bind(options))
+                    .AddGoogle(options => Configuration.GetSection("Authentication:Google").Bind(options));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSignalR();

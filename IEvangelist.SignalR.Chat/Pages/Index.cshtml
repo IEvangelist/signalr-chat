@@ -3,12 +3,12 @@
 
 <div class="chat" id="chat">
     <div class="pb-lg-4 chat-list">
-        <ul class="list-group list-group-flush chat-messages">
-            <li class="list-group-item" v-for="[id, value] in toArray(messages)" v-bind:id="id">
+        <transition-group name="list" tag="ul"  class="chat-messages">
+            <li class="list-group-item" v-for="[id, value] in toArray(messages)" v-bind:key="id">
                 <span class="gutter pr-lg-2 text-muted">{{value.user}}</span>
                 <span class="message pl-lg-2">{{value.text}}</span>
             </li>
-        </ul>
+        </transition-group>
     </div>
     <section class="post-container">
         <form v-on:submit.prevent="postMessage">
