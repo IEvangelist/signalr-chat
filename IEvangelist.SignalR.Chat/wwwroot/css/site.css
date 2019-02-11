@@ -1,5 +1,9 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
+:root {
+    --signalr: #7DB2D6;
+}
+
 
 a.navbar-brand {
   white-space: normal;
@@ -9,8 +13,8 @@ a.navbar-brand {
 
 .btn-primary {
     background-image: none;
-    background-color: #7DB2D6;
-    border: solid 1px #7DB2D6;
+    background-color: var(--signalr);
+    border: solid 1px var(--signalr);
 }
 
 /* Sticky footer styles
@@ -64,12 +68,23 @@ li.nav-item.no-click > div.nav-link:hover {
     background-image: none;
 }
 
+.chat-messages {
+    padding-inline-start: 0;
+    display: flex;
+    flex-direction: column-reverse;
+
+}
+
 .chat-messages > li {
     color: #aaa;
     text-align: left;
     background-color: #3A3F44;
-    margin: 5px 40px;
+    margin: 7px 40px;
     border-radius: 5px;
+    line-height: 40px;
+    position: relative;
+    display: block;
+    padding: 10px 0
 }
 
 .list-enter-active,
@@ -79,29 +94,32 @@ li.nav-item.no-click > div.nav-link:hover {
 
 .list-enter,
 .list-leave-to {
+    line-height: 0;
     opacity: 0;
-    transform: translateY(-40px);
+    transform: translateY(40px);
 }
 
 .gutter {
+    padding: 0.75rem 1.25rem;
     text-align: right;
     min-width: 2rem;
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    border-right: 3px solid var(--signalr);
 }
 
 .message {
-
+    padding: 0.75rem 1.25rem;
 }
 
 .chat {
+    position: absolute;
+    bottom: 0;
     width: 100vw;
-    height: 100vh;
-    padding-top: 110px;
+    max-height: 100%;
 }
 
 .chat-list {
-    overflow: hidden;
     margin-bottom: 120px;
+    margin-top: 110px;
 }
 
 header {
@@ -129,9 +147,9 @@ header {
     padding: 5px;
 }
 
-.logo > #signalr-svg {
-    fill: #7DB2D6;
-}
+    .logo > #signalr-svg {
+        fill: var(--signalr);
+    }
 
 .post-container {
     position: fixed;
@@ -144,7 +162,7 @@ header {
 }
 
     .post-container input {
-        border: solid 2px #7DB2D6;
+        border: solid 2px var(--signalr);
         background-color: #3A3F44;
     }
 
