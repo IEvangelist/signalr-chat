@@ -75,17 +75,18 @@ li.nav-item.no-click > div.nav-link:hover {
 
 }
 
-.chat-messages > li {
-    color: #aaa;
-    text-align: left;
-    background-color: #3A3F44;
-    margin: 7px 40px;
-    border-radius: 5px;
-    line-height: 40px;
-    position: relative;
-    display: block;
-    padding: 10px 0
-}
+    .chat-messages > li {
+        color: #aaa;
+        text-align: left;
+        background-color: #3A3F44;
+        margin: 7px 40px;
+        border-radius: 5px;
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 7px 0
+    }
 
 .list-enter-active,
 .list-leave-active {
@@ -104,10 +105,12 @@ li.nav-item.no-click > div.nav-link:hover {
     text-align: right;
     min-width: 2rem;
     border-right: 3px solid var(--signalr);
+    vertical-align: -webkit-baseline-middle
 }
 
 .message {
     padding: 0.75rem 1.25rem;
+    vertical-align: -webkit-baseline-middle
 }
 
 .chat {
@@ -117,8 +120,30 @@ li.nav-item.no-click > div.nav-link:hover {
     max-height: 100%;
 }
 
+.arrow-container {
+    display: inline-flex;
+   align-items: center;
+}
+
+.arrow {
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+}
+
+.arrow1 {
+    border-left: 7px solid var(--signalr);
+}
+
+.arrow2 {
+    position: absolute;
+    margin-left: -4px;
+    border-left: 7px solid #3A3F44;
+}
+
 .chat-list {
-    margin-bottom: 120px;
+    margin-bottom: 145px;
     margin-top: 110px;
 }
 
