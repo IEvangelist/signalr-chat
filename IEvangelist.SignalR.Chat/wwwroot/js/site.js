@@ -30,6 +30,8 @@
     connection.on('messageReceived', json => {
         app.messages.set(json.id, json);
         app.nudge();
+        updateScroll();
+        setTimeout(updateScroll);
     });
 
     // Reconnect loop
@@ -42,4 +44,9 @@
     connection.onclose(() => start());
 
     start();
+
+    var updateScroll = function () {
+        var element = document.querySelector("html");
+        element.scrollTop = element.scrollHeight;
+    };
 })();

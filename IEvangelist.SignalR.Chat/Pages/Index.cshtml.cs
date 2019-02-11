@@ -9,7 +9,7 @@ namespace IEvangelist.SignalR.Chat.Pages
         {
             if (User.Identity.IsAuthenticated)
             {
-                return Page(); 
+                return Page();
             }
 
             return RedirectToPage("/login");

@@ -1,26 +1,31 @@
 ﻿@page
 @model IndexModel
 
-<div id="chat" class="jumbotron">
-
-    <div class="pb-lg-4">
-        <ul class="list-group list-group-flush chat-messages">
-            <li class="list-group-item" v-for="[id, value] in toArray(messages)" v-bind:id="id">
-                <span class="gutter pr-lg-2 text-muted">{{value.user}}</span>
-                <span class="message pl-lg-2">{{value.text}}</span>
+<div class="chat" id="chat">
+    <div class="pb-lg-4 chat-list">
+        <transition-group name="list" tag="ul"  class="chat-messages">
+            <li class="chat-message" v-for="[id, value] in toArray(messages).slice().reverse()" v-bind:key="id">
+                <div class="gutter pr-lg-2 text-muted ">{{value.user}}</div>
+                <div class="arrow-container">
+                    <span class="arrow arrow2"></span>
+                    <span class="arrow arrow1"></span>
+                </div>
+                <div class="message pl-lg-2">{{value.text}}</div>
             </li>
-        </ul>
+        </transition-group>
     </div>
 
-    <form v-on:submit.prevent="postMessage">
-        <div class="form-group">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" v-model="message">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit">Post</button>
+
+    <section class="post-container">
+        <form v-on:submit.prevent="postMessage">
+            <div class="form-group">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" v-model="message">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Post</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
-
+        </form>
+    </section>
 </div>
