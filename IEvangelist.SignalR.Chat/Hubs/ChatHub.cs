@@ -7,17 +7,17 @@ namespace IEvangelist.SignalR.Chat.Hubs
 {
     public class ChatHub : Hub
     {
-        string UserName => Context.User.Identity.Name;
+        string Username => Context.User.Identity.Name;
 
         [Authorize]
         public async Task PostMessage(string message, string id = null)
             => await Clients.All.SendAsync(
-                "MessageReceived",                
+                "MessageReceived",
                 new
                 {
                     text = message,
                     id = UseOrCreateId(id),
-                    user = UserName
+                    user = Username
                 });
 
         static string UseOrCreateId(string id)

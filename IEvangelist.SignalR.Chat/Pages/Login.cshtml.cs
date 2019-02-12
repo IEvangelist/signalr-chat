@@ -10,7 +10,7 @@ namespace IEvangelist.SignalR.Chat.Pages
     {
         readonly IAuthenticationSchemeProvider _authSchemeProvider;
 
-        public IEnumerable<AuthenticationScheme> AuthSchemes { get; set; }
+        public IEnumerable<AuthenticationScheme> AuthSchemes { get; private set; }
 
         public LoginModel(IAuthenticationSchemeProvider authSchemeProvider)
             => _authSchemeProvider = authSchemeProvider;
@@ -28,11 +28,6 @@ namespace IEvangelist.SignalR.Chat.Pages
         }
 
         public IActionResult OnPost(string scheme)
-            => Challenge(
-                new AuthenticationProperties
-                {
-                    RedirectUri = Url.Page("/Index")
-                },
-                scheme);
+            => Challenge(new AuthenticationProperties { RedirectUri = Url.Page("/Index") }, scheme);
     }
 }

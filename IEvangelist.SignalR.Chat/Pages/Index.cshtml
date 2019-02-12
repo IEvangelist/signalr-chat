@@ -3,7 +3,7 @@
 
 <div class="chat" id="chat">
     <div class="pb-lg-4 chat-list">
-        <transition-group name="list" tag="ul"  class="chat-messages">
+        <transition-group name="list" tag="ul" class="chat-messages">
             <li class="chat-message" v-for="[id, value] in toArray(messages).slice().reverse()" v-bind:key="id">
                 <div class="gutter pr-lg-2 text-muted ">{{value.user}}</div>
                 <div class="arrow-container">

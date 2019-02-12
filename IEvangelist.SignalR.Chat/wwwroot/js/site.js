@@ -27,6 +27,11 @@
         }
     });
 
+    const updateScroll = () => {
+        const element = document.querySelector('html');
+        element.scrollTop = element.scrollHeight;
+    };
+
     connection.on('messageReceived', json => {
         app.messages.set(json.id, json);
         app.nudge();
@@ -44,9 +49,4 @@
     connection.onclose(() => start());
 
     start();
-
-    var updateScroll = function () {
-        var element = document.querySelector("html");
-        element.scrollTop = element.scrollHeight;
-    };
 })();
