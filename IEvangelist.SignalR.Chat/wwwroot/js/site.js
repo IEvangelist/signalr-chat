@@ -10,12 +10,13 @@
             messageId: null,
             message: '',
             messages: new Map(),
-            typingUsers: []
+            typingUsers: [],
+            isTyping: false
         },
         watch: {
-            message: function(newMsg, oldMsg) {
-                this.typing(!!newMsg);
-            }
+            message: _.debounce(function () {
+                this.setTyping(false);
+            }, 750)
         },
         computed: {
             usersTyping: function() {
@@ -23,14 +24,14 @@
                 if (length) {
                     switch (length) {
                     case 1:
-                        return `${this.typingUsers[0]} is typing...`;
+                        return `// <strong>${this.typingUsers[0]}</strong> is typing...`;
                     case 2:
-                        return `${this.typingUsers[0]} and ${this.typingUsers[1]} are typing...`;
+                        return `// <strong>${this.typingUsers[0]}</strong> and <strong>${this.typingUsers[1]}</strong> are typing...`;
                     default:
-                        return 'Multiple people are typing...';
+                        return '// Multiple people are typing...';
                     }
                 }
-                return ' ';
+                return '// ';
             }
         },
         methods: {
@@ -40,15 +41,16 @@
                     this.message = this.messageId = '';
                 }
             },
-            typing(isTyping) {
-                connection.invoke('userTyping', isTyping);
+            setTyping(isTyping) {
+                if (this.isTyping && isTyping) {
+                    return;
+                }
+
+                connection.invoke('userTyping', this.isTyping = isTyping);
             },
             toArray(messages) {
                 return Array.from(messages);
             },
-            noLongerTyping: _.debounce(function() {
-                 this.typing(false);
-            }, 500),
             nudge() {
                 this.$forceUpdate();
             }

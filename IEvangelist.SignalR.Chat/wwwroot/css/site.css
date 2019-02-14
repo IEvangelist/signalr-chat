@@ -113,6 +113,10 @@ li.nav-item.no-click > div.nav-link:hover {
     vertical-align: -webkit-baseline-middle
 }
 
+.login {
+    padding-top: 106px;
+}
+
 .chat {
     position: absolute;
     bottom: 0;
