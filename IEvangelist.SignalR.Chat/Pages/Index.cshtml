@@ -20,11 +20,12 @@
         <form v-on:submit.prevent="postMessage">
             <div class="form-group">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" v-model="message">
+                    <input type="text" class="form-control" v-model="message" @@input="noLongerTyping">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit">Post</button>
                     </div>
                 </div>
+                <span class="text-muted">{{usersTyping}}</span>
             </div>
         </form>
     </section>

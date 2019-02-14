@@ -194,3 +194,7 @@ header {
     .post-container input:active {
         background-color: white;
     }
+
+    .post-container .form-group {
+        margin-bottom: 0;
+    }

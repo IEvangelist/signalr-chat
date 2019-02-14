@@ -9,6 +9,14 @@
         "dist/browser/signalr.min.js",
         "dist/browser/signalr.js"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "lodash.js@4.17.11",
+      "destination": "wwwroot/lib/lodash.js/",
+      "files": [
+        "lodash.min.js"
+      ]
     }
   ]
 }

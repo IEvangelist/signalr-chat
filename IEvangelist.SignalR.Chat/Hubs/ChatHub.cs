@@ -20,6 +20,16 @@ namespace IEvangelist.SignalR.Chat.Hubs
                     user = Username
                 });
 
+        [Authorize]
+        public async Task UserTyping(bool isTyping)
+            => await Clients.Others.SendAsync(
+                "UserTyping",
+                new
+                {
+                    isTyping,
+                    user = Username
+                });
+
         static string UseOrCreateId(string id)
             => string.IsNullOrWhiteSpace(id)
                 ? Guid.NewGuid().ToString()
