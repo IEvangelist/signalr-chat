@@ -38,7 +38,8 @@
             postMessage() {
                 if (this.message) {
                     connection.invoke('postMessage', this.message, this.messageId);
-                    this.message = this.messageId = '';
+                    this.message = null;
+                    this.messageId = null;
                 }
             },
             setTyping(isTyping) {
@@ -53,6 +54,18 @@
             },
             nudge() {
                 this.$forceUpdate();
+            },
+            appendEdited(json) {
+                return json.isEdit ? ' <span class="text-muted">(edited)</span>' : '';
+            },
+            startEdit(json) {
+                this.message = json.text;
+                this.messageId = json.id;
+                $(':text').focus();
+            },
+            appendToMessage(text) {
+                this.message += text;
+                $(':text').focus();
             }
         }
     });
@@ -66,8 +79,10 @@
         json => {
             app.messages.set(json.id, json);
             app.nudge();
-            updateScroll();
-            setTimeout(updateScroll);
+            if (!json.isEdit) {
+                updateScroll();
+                setTimeout(updateScroll);
+            }
         });
 
     connection.on('userTyping',

@@ -17,6 +17,7 @@ namespace IEvangelist.SignalR.Chat.Hubs
                 {
                     text = message,
                     id = UseOrCreateId(id),
+                    isEdit = id != null,
                     user = Username
                 });
 
