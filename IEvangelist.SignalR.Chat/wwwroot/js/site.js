@@ -75,10 +75,11 @@
         json => {
             app.messages.set(json.id, json);
             app.nudge();
-            if (!json.isEdit) {
-                updateScroll();
-                setTimeout(updateScroll);
+            if (json.isEdit) {
+                return;
             }
+            updateScroll();
+            setTimeout(updateScroll);
         });
 
     connection.on('userTyping',

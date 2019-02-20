@@ -34,6 +34,7 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    font-size: 1.2rem
 }
 
 .border-top {
@@ -175,6 +176,10 @@ header {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+}
+
+.btn {
+    font-size: inherit
 }
 
 .logo {
