@@ -62,10 +62,6 @@
                 this.message = json.text;
                 this.messageId = json.id;
                 $(':text').focus();
-            },
-            appendToMessage(text) {
-                this.message += text;
-                $(':text').focus();
             }
         }
     });
