@@ -4,8 +4,8 @@
 <div class="chat" id="chat">
     <div class="pb-lg-4 chat-list">
         <transition-group name="list" tag="ul" class="chat-messages">
-            <li v-for="[id, value] in toArray(messages).slice().reverse()" 
-                v-bind:key="id" class="chat-messages" >
+            <li v-for="[id, value] in toArray(messages).slice().reverse()"
+                v-bind:key="id" class="chat-messages">
                 <div class="gutter pr-lg-2 text-muted">{{value.user}}</div>
                 <div class="arrow-container">
                     <span class="arrow arrow2"></span>
@@ -18,16 +18,26 @@
         </transition-group>
     </div>
 
-
     <section class="post-container">
         <form v-on:submit.prevent="postMessage">
-            <div class="form-group">
-                <div class="input-group input-group-lg mb-3">
-                    <input type="text" class="form-control" v-model="message" @@input="setTyping(true)">
-                    <div class="input-group-append">
-                        <button class="btn btn-lg btn-primary" type="submit">Post</button>
+            <div class="form-row">
+                <div class="form-group col-lg-11">
+                    <div class="input-group input-group-lg mb-3">
+                        <input type="text" class="form-control" v-model="message" @@input="setTyping(true)">
+                        <div class="input-group-append">
+                            <button class="btn btn-lg btn-primary" type="submit">Post</button>
+                        </div>
                     </div>
                 </div>
+                <div class="form-group col-lg-1">
+                    <div class="emoji">
+                        <span @@click="appendToMessage('🤣')">🤣</span>
+                        <span @@click="appendToMessage('🤬')">🤬</span>
+                        <span @@click="appendToMessage('🤘')">🤘</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
                 <span class="text-muted" v-html="usersTyping"></span>
             </div>
         </form>

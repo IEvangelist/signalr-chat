@@ -182,10 +182,19 @@ header {
     font-size: inherit
 }
 
-.logo {
-    width: 75px;
-    padding: 5px;
+.emoji {
+    font-size: 1.8rem;
 }
+
+    .emoji > span:hover {
+        cursor: pointer;
+        filter: brightness(150%);
+    }
+
+    .logo {
+        width: 75px;
+        padding: 5px;
+    }
 
     .logo > #signalr-svg {
         fill: var(--signalr);
