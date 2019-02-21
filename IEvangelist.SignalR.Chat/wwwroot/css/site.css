@@ -116,8 +116,16 @@ li.nav-item.no-click > div.nav-link:hover {
 }
 
 .message:hover {
-    cursor: pointer;
-    filter: brightness(150%);
+    cursor: not-allowed;
+}
+
+    .message.canEdit:hover {
+        cursor: pointer;
+        filter: brightness(150%);
+    }
+
+.message.canEdit > span.text-muted:hover {
+    filter: none;
 }
 
 .login {
@@ -184,6 +192,7 @@ header {
 
 .emoji {
     font-size: 1.8rem;
+    transition: ease-in-out all .5s;
 }
 
     .emoji > span:hover {

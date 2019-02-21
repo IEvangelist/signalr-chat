@@ -2,16 +2,18 @@
 @model IndexModel
 
 <div class="chat" id="chat">
+    <input hidden id="user" value="@User.Identity.Name" />
     <div class="pb-lg-4 chat-list">
         <transition-group name="list" tag="ul" class="chat-messages">
-            <li v-for="[id, value] in toArray(messages).slice().reverse()"
+            <li v-for="[id, value] in toArray(messages)"
                 v-bind:key="id" class="chat-messages">
                 <div class="gutter pr-lg-2 text-muted">{{value.user}}</div>
                 <div class="arrow-container">
                     <span class="arrow arrow2"></span>
                     <span class="arrow arrow1"></span>
                 </div>
-                <div class="message pl-lg-2" @@click="startEdit(value)">
+                <div v-bind:class="{ canEdit: isMyMessage(value.user) }"
+                     class="message pl-lg-2" @@click="startEdit(value)">
                     {{value.text}}<span class="text-muted" v-html="appendEdited(value)"></span>
                 </div>
             </li>
@@ -31,9 +33,9 @@
                 </div>
                 <div class="form-group col-lg-1">
                     <div class="emoji">
-                        <span @@click="appendToMessage('🤣')">🤣</span>
-                        <span @@click="appendToMessage('🤬')">🤬</span>
-                        <span @@click="appendToMessage('🤘')">🤘</span>
+                        <span v-for="emoji in emojis" @@click="appendToMessage(emoji)">
+                            {{emoji}}
+                        </span>
                     </div>
                 </div>
             </div>

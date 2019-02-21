@@ -10,8 +10,10 @@
             messageId: null,
             message: '',
             messages: new Map(),
+            currentUser: $('#user').val(),
             typingUsers: [],
-            isTyping: false
+            isTyping: false,
+            emojis: ['🤣', '🤬', '🤘']
         },
         watch: {
             message: _.debounce(function () {
@@ -19,16 +21,16 @@
             }, 750)
         },
         computed: {
-            usersTyping: function() {
+            usersTyping: function () {
                 const length = this.typingUsers.length;
                 if (length) {
                     switch (length) {
-                    case 1:
-                        return `// <strong>${this.typingUsers[0]}</strong> is typing...`;
-                    case 2:
-                        return `// <strong>${this.typingUsers[0]}</strong> and <strong>${this.typingUsers[1]}</strong> are typing...`;
-                    default:
-                        return '// Multiple people are typing...';
+                        case 1:
+                            return `// <strong>${this.typingUsers[0]}</strong> is typing...`;
+                        case 2:
+                            return `// <strong>${this.typingUsers[0]}</strong> and <strong>${this.typingUsers[1]}</strong> are typing...`;
+                        default:
+                            return '// Multiple people are typing...';
                     }
                 }
                 return '// ';
@@ -38,7 +40,7 @@
             postMessage() {
                 if (this.message) {
                     connection.invoke('postMessage', this.message, this.messageId);
-                    this.message = null;
+                    this.message = '';
                     this.messageId = null;
                 }
             },
@@ -50,7 +52,7 @@
                 connection.invoke('userTyping', this.isTyping = isTyping);
             },
             toArray(messages) {
-                return Array.from(messages);
+                return Array.from(messages).slice().reverse();
             },
             nudge() {
                 this.$forceUpdate();
@@ -59,13 +61,19 @@
                 return json.isEdit ? ' <span class="text-muted">(edited)</span>' : '';
             },
             startEdit(json) {
-                this.message = json.text;
-                this.messageId = json.id;
+                if (this.isMyMessage(json.user)) {
+                    this.message = json.text;
+                    this.messageId = json.id;
+                }
                 $(':text').focus();
             },
             appendToMessage(text) {
                 this.message += text;
                 $(':text').focus();
+                this.setTyping(false);
+            },
+            isMyMessage(user) {
+                return user === this.currentUser;
             }
         }
     });
@@ -106,4 +114,6 @@
     connection.onclose(() => start());
 
     start();
+
+    $(':text').focus();
 })();
