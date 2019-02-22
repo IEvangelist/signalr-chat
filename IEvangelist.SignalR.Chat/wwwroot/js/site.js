@@ -13,7 +13,8 @@
             currentUser: $('#user').val(),
             typingUsers: [],
             isTyping: false,
-            emojis: ['🤣', '🤬', '🤘']
+            emojis: ['🤣', '🤬', '🤘'],
+            userLoggedOnMessage: ''
         },
         watch: {
             message: _.debounce(function () {
@@ -26,14 +27,14 @@
                 if (length) {
                     switch (length) {
                         case 1:
-                            return `// <strong>${this.typingUsers[0]}</strong> is typing...`;
+                            return `📝 <strong>${this.typingUsers[0]}</strong> is typing...`;
                         case 2:
-                            return `// <strong>${this.typingUsers[0]}</strong> and <strong>${this.typingUsers[1]}</strong> are typing...`;
+                            return `📝 <strong>${this.typingUsers[0]}</strong> and <strong>${this.typingUsers[1]}</strong> are typing...`;
                         default:
-                            return '// Multiple people are typing...';
+                            return '📝 Multiple people are typing...';
                     }
                 }
-                return '// ';
+                return '📝 ';
             }
         },
         methods: {
@@ -104,7 +105,13 @@
             }
         });
 
-    // Reconnect loop
+    connection.on('userLoggedOn',
+        json => {
+            if (json && json.user) {
+                toastr.info(`${json.user} logged on...`, 'Hey!');
+            }
+        });
+
     const start = () => {
         connection.start().catch(_ => {
             setTimeout(() => start(), 5000);
@@ -114,6 +121,16 @@
     connection.onclose(() => start());
 
     start();
+
+    toastr.options = {
+        toastClass: 'info',
+        iconClasses: {
+            info: 'alert alert-info'
+        },
+        newestOnTop: true,
+        positionClass: 'toast-top-center',
+        preventDuplicates: true
+    };
 
     $(':text').focus();
 })();

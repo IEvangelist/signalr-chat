@@ -6,9 +6,9 @@ for details on configuring this project to bundle and minify static web assets. 
 
 
 a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
 }
 
 .btn-primary {
@@ -22,12 +22,13 @@ a.navbar-brand {
 html {
     margin: 0;
     padding: 0;
-  font-size: 14px;
+    font-size: 14px;
 }
+
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
@@ -38,26 +39,27 @@ body {
 }
 
 .border-top {
-  border-top: 1px solid #e5e5e5;
+    border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+    font-size: 1rem;
+    line-height: inherit;
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 li.nav-item.no-click > div.nav-link {
@@ -65,20 +67,19 @@ li.nav-item.no-click > div.nav-link {
     border-left: none;
 }
 
-li.nav-item.no-click > div.nav-link:hover {
-    color: rgb(170, 170, 170);
-    background-image: none;
-}
+    li.nav-item.no-click > div.nav-link:hover {
+        color: rgb(170, 170, 170);
+        background-image: none;
+    }
 
 .chat-messages {
     padding-inline-start: 0;
     display: flex;
     flex-direction: column-reverse;
-
 }
 
     .chat-messages > li {
-        color: #aaa;
+        color: var(--signalr);
         text-align: left;
         background-color: #3A3F44;
         margin: 7px 40px;
@@ -88,6 +89,10 @@ li.nav-item.no-click > div.nav-link:hover {
         flex-direction: row;
         justify-content: flex-start;
         padding: 7px 0
+    }
+
+    .chat-messages > .greeting {
+        
     }
 
 .list-enter-active,
@@ -105,7 +110,7 @@ li.nav-item.no-click > div.nav-link:hover {
 .gutter {
     padding: 0.75rem 1.25rem;
     text-align: right;
-    min-width: 2rem;
+    min-width: 10rem;
     border-right: 3px solid var(--signalr);
     vertical-align: -webkit-baseline-middle
 }
@@ -115,18 +120,18 @@ li.nav-item.no-click > div.nav-link:hover {
     vertical-align: -webkit-baseline-middle
 }
 
-.message:hover {
-    cursor: not-allowed;
-}
+    .message:hover {
+        cursor: not-allowed;
+    }
 
     .message.canEdit:hover {
         cursor: pointer;
         filter: brightness(150%);
     }
 
-.message.canEdit > span.text-muted:hover {
-    filter: none;
-}
+    .message.canEdit > span.text-muted:hover {
+        filter: none;
+    }
 
 .login {
     padding-top: 106px;
@@ -141,7 +146,7 @@ li.nav-item.no-click > div.nav-link:hover {
 
 .arrow-container {
     display: inline-flex;
-   align-items: center;
+    align-items: center;
 }
 
 .arrow {
@@ -200,10 +205,10 @@ header {
         filter: brightness(150%);
     }
 
-    .logo {
-        width: 75px;
-        padding: 5px;
-    }
+.logo {
+    width: 75px;
+    padding: 5px;
+}
 
     .logo > #signalr-svg {
         fill: var(--signalr);
@@ -211,7 +216,7 @@ header {
 
 .post-container {
     position: fixed;
-    z-index:1;
+    z-index: 1;
     width: 100%;
     bottom: 0;
     background: #3A3F44;
@@ -224,9 +229,9 @@ header {
         background-color: #3A3F44;
     }
 
-    .post-container input:active {
-        background-color: white;
-    }
+        .post-container input:active {
+            background-color: white;
+        }
 
     .post-container .form-group {
         margin-bottom: 0;

@@ -9,6 +9,25 @@ namespace IEvangelist.SignalR.Chat.Hubs
     {
         string Username => Context.User.Identity.Name;
 
+        public override async Task OnConnectedAsync()
+        {
+            await Clients.Caller.SendAsync(
+                "MessageReceived",
+                new
+                {
+                    text = $"💯 Hi, {Username}! This chat application is powered by SignalR 👍🏽",
+                    id = "greeting",
+                    isGreeting = true,
+                    user = "👋"
+                });
+
+            await Clients.Others.SendAsync(
+                "UserLoggedOn", new
+                {
+                    user = Username
+                });
+        }
+
         [Authorize]
         public async Task PostMessage(string message, string id = null)
             => await Clients.All.SendAsync(
