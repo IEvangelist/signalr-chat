@@ -10,33 +10,28 @@ namespace IEvangelist.SignalR.Chat
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        readonly IConfiguration _configuration;
 
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => _configuration = configuration;
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
             services.AddAuthentication("Cookies")
                     .AddCookie()
-                    .AddTwitter(options => Configuration.GetSection("Authentication:Twitter").Bind(options))
-                    .AddGoogle(options => Configuration.GetSection("Authentication:Google").Bind(options));
+                    .AddTwitter(options => _configuration.GetSection("Authentication:Twitter").Bind(options))
+                    .AddGoogle(options => _configuration.GetSection("Authentication:Google").Bind(options));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddSignalR();
+            services.AddSignalR()
+                    .AddAzureSignalR();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -47,7 +42,6 @@ namespace IEvangelist.SignalR.Chat
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -55,7 +49,7 @@ namespace IEvangelist.SignalR.Chat
                .UseStaticFiles()
                .UseCookiePolicy()
                .UseAuthentication()
-               .UseSignalR(routes => routes.MapHub<ChatHub>("/chat"))
+               .UseAzureSignalR(routes => routes.MapHub<ChatHub>("/chat"))
                .UseMvc();
         }
     }
