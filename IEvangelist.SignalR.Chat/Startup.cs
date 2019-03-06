@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using IEvangelist.SignalR.Chat.Hubs;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -25,7 +27,19 @@ namespace IEvangelist.SignalR.Chat
             services.AddAuthentication("Cookies")
                     .AddCookie()
                     .AddTwitter(options => _configuration.GetSection("Authentication:Twitter").Bind(options))
-                    .AddGoogle(options => _configuration.GetSection("Authentication:Google").Bind(options));
+                    .AddGoogle(o =>
+                     {
+                         o.ClientId = _configuration["Authentication:Google:ClientId"];
+                         o.ClientSecret = _configuration["Authentication:Google:ClientSecret"];
+                         o.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
+                         o.ClaimActions.Clear();
+                         o.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                         o.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                         o.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+                         o.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+                         o.ClaimActions.MapJsonKey("urn:google:profile", "link");
+                         o.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+                     });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSignalR()
