@@ -42,7 +42,7 @@ namespace IEvangelist.SignalR.Chat
                      });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddSignalR()
+            services.AddSignalR(options => options.EnableDetailedErrors = true)
                     .AddAzureSignalR();
         }
 
