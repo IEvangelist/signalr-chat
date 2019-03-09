@@ -59,7 +59,9 @@
                 this.$forceUpdate();
             },
             appendEdited(json) {
-                return json.isEdit ? ' <span class="text-muted">(edited)</span>' : '';
+                return this.isMyMessage(json.user) && json.isEdit
+                    ? ' <span class="text-muted">(edited)</span>'
+                    : '';
             },
             startEdit(json) {
                 if (this.isMyMessage(json.user)) {
