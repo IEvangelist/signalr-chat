@@ -29,7 +29,15 @@ namespace IEvangelist.SignalR.Chat.Hubs
                     user = Username
                 });
         }
-        
+
+        public override async Task OnDisconnectedAsync(Exception ex) 
+            => await Clients.Others.SendAsync(
+                "UserLoggedOff",
+                new
+                {
+                    user = Username
+                });
+
         public async Task PostMessage(string message, string id = null)
             => await Clients.All.SendAsync(
                 "MessageReceived",
@@ -58,10 +66,12 @@ namespace IEvangelist.SignalR.Chat.Hubs
 
     public interface IChatHub
     {
-        Task UserLoggedOn(object arg);
+        Task UserLoggedOn(object args);
 
-        Task UserTyping(object arg);
+        Task UserLoggedOff(object args);
 
-        Task MessageReceived(object org);
+        Task UserTyping(object args);
+
+        Task MessageReceived(object args);
     }
 }

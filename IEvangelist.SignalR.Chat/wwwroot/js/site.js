@@ -114,6 +114,13 @@
             }
         });
 
+    connection.on('userLoggedOff',
+        json => {
+            if (json && json.user) {
+                toastr.info(`${json.user} logged off...`, 'Hey!');
+            }
+        });
+
     const start = () => {
         connection.start().catch(_ => {
             setTimeout(() => start(), 5000);
