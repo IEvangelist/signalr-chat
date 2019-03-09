@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace IEvangelist.SignalR.Chat.Hubs
 {
     [Authorize]
-    public class ChatHub : Hub
+    public class ChatHub : Hub // <IChatHub>
     {
         string Username => Context.User.Identity.Name;
 
@@ -23,7 +23,8 @@ namespace IEvangelist.SignalR.Chat.Hubs
                 });
 
             await Clients.Others.SendAsync(
-                "UserLoggedOn", new
+                "UserLoggedOn", 
+                new
                 {
                     user = Username
                 });
@@ -53,5 +54,14 @@ namespace IEvangelist.SignalR.Chat.Hubs
             => string.IsNullOrWhiteSpace(id)
                 ? Guid.NewGuid().ToString()
                 : id;
+    }
+
+    public interface IChatHub
+    {
+        Task UserLoggedOn(object arg);
+
+        Task UserTyping(object arg);
+
+        Task MessageReceived(object org);
     }
 }
