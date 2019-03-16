@@ -2,13 +2,18 @@
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
+using IEvangelist.SignalR.Chat.Services;
 
 namespace IEvangelist.SignalR.Chat.Hubs
 {
     [Authorize]
     public class ChatHub : Hub // <IChatHub>
     {
+        readonly ICommandSignal _commandSignal;
+
         string Username => Context.User.Identity.Name;
+
+        public ChatHub(ICommandSignal commandSignal) => _commandSignal = commandSignal;
 
         public override async Task OnConnectedAsync()
         {
@@ -39,7 +44,13 @@ namespace IEvangelist.SignalR.Chat.Hubs
                 });
 
         public async Task PostMessage(string message, string id = null)
-            => await Clients.All.SendAsync(
+        {
+            if (_commandSignal.IsRecognizedCommand(message))
+            {
+                return;
+            }
+
+            await Clients.All.SendAsync(
                 "MessageReceived",
                 new
                 {
@@ -48,6 +59,7 @@ namespace IEvangelist.SignalR.Chat.Hubs
                     isEdit = id != null,
                     user = Username
                 });
+        }
 
         public async Task UserTyping(bool isTyping)
             => await Clients.Others.SendAsync(

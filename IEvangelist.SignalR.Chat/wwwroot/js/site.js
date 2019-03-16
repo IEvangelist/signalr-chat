@@ -22,6 +22,9 @@
             }, 750)
         },
         computed: {
+            isFlashing: function() {
+                return !!this.typingUsers.length;
+            },
             usersTyping: function () {
                 const length = this.typingUsers.length;
                 if (length) {

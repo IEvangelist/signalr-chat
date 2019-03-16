@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using IEvangelist.SignalR.Chat.Hubs;
@@ -12,19 +13,23 @@ namespace IEvangelist.SignalR.Chat.Bots
     public class ChatBotService : BackgroundService
     {
         const string ChatBotUserName = "Joke Bot";
+        const string GateKeeper = nameof(GateKeeper);
 
         readonly IHubContext<ChatHub> _chatHub;
         readonly IDadJokeService _dataJokeService;
+        readonly ICommandSignal _commandSignal;
         readonly ILogger<ChatBotService> _logger;
         readonly Random _random = new Random((int)DateTime.Now.Ticks);
 
         public ChatBotService(
             IHubContext<ChatHub> chatHub,
             IDadJokeService dataJokeService,
+            ICommandSignal commandSignal,
             ILogger<ChatBotService> logger)
         {
             _chatHub = chatHub;
             _dataJokeService = dataJokeService;
+            _commandSignal = commandSignal;
             _logger = logger;
         }
 
@@ -32,13 +37,24 @@ namespace IEvangelist.SignalR.Chat.Bots
         {
             while (!cancellationToken.IsCancellationRequested)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                _logger.LogInformation("Joke Bot, awaiting command signal...");
+
                 try
                 {
-                    await ToggleIsTypingAsync(true, cancellationToken);
-                    await Task.Delay(3500, cancellationToken);
+                    await _commandSignal.WaitCommandAsync(cancellationToken);
 
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    await ToggleIsTypingAsync(true, cancellationToken);
+                    await Task.Delay(2500, cancellationToken);
+
+                    _logger.LogInformation($"Joke bot was typing for {stopwatch.Elapsed}");
+                    stopwatch.Restart();
+                    
                     var joke = await _dataJokeService.GetDadJokeAsync();
-                    _logger.LogInformation($"Joke: {joke}.");
+                    _logger.LogInformation($"Got a joke, took {stopwatch.Elapsed} to think of one...{joke}.");
+                    stopwatch.Restart();
 
                     await ToggleIsTypingAsync(false, cancellationToken);
                     await _chatHub.Clients
@@ -52,16 +68,15 @@ namespace IEvangelist.SignalR.Chat.Bots
                                            user = ChatBotUserName
                                        },
                                        cancellationToken);
+
+                    stopwatch.Stop();
+                    _logger.LogInformation($"Joke bot, shared his joke after {stopwatch.Elapsed}");
                 }
                 catch (Exception ex)
                 {
                     // We don't know (or have a way of knowing) if there are actually clients connected.
                     // This happen => "The connection is not active, data cannot be sent to the service."
                     _logger.LogError($"Error: {ex.Message}.", ex);
-                }
-                finally
-                {
-                    await Task.Delay(_random.Next(3000, 60000), cancellationToken);
                 }
             }
 

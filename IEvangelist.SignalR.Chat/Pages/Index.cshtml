@@ -41,7 +41,8 @@
                 </div>
             </div>
             <div class="form-row">
-                <span class="text-muted" v-html="usersTyping"></span>
+                <span class="text-muted" v-bind:class="{ flashing: isFlashing }"
+                      v-html="usersTyping"></span>
             </div>
         </form>
     </section>

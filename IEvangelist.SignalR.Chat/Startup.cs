@@ -21,8 +21,6 @@ namespace IEvangelist.SignalR.Chat
 
         public void ConfigureServices(IServiceCollection services)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
@@ -47,6 +45,7 @@ namespace IEvangelist.SignalR.Chat
                      });
 
             services.AddHostedService<ChatBotService>();
+            services.AddSingleton<ICommandSignal, CommandSignal>();
             services.AddHttpClient<IDadJokeService, DadJokeService>(
                 client => client.DefaultRequestHeaders.Add("Accept", "text/plain"));
 

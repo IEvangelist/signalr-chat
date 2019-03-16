@@ -4,7 +4,6 @@ for details on configuring this project to bundle and minify static web assets. 
     --signalr: #7DB2D6;
 }
 
-
 a.navbar-brand {
     white-space: normal;
     text-align: center;
@@ -236,3 +235,13 @@ header {
     .post-container .form-group {
         margin-bottom: 0;
     }
+
+.flashing {
+    animation: flash ease-in-out 1.5s infinite;
+}
+
+@keyframes flash {
+    0% { opacity: 1; }
+    50% { opacity: .2 }
+    100% { opacity: 1; }
+}
