@@ -82,15 +82,15 @@
                 return user === this.currentUser;
             },
             speak(message) {
-                const msg = new SpeechSynthesisUtterance();
+                const utterance = new SpeechSynthesisUtterance(message);
                 const voices = window.speechSynthesis.getVoices();
-                msg.voice = voices[Math.floor(Math.random() * voices.length)];
-                msg.voiceURI = 'native';
-                msg.volume = 1;
-                msg.rate = 1;
-                msg.text = message;
-                msg.lang = 'en-US';
-                speechSynthesis.speak(msg);
+                utterance.voice = voices.find(v => v.name === 'Google US English') || voices[0];
+                utterance.lang = 'en-US';
+                utterance.voiceURI = 'native';
+                utterance.volume = 1;
+                utterance.rate = 1;
+
+                speechSynthesis.speak(utterance);
             }
         }
     });
