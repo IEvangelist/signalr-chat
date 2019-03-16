@@ -80,6 +80,17 @@
             },
             isMyMessage(user) {
                 return user === this.currentUser;
+            },
+            speak(message) {
+                const msg = new SpeechSynthesisUtterance();
+                const voices = window.speechSynthesis.getVoices();
+                msg.voice = voices[Math.floor(Math.random() * voices.length)];
+                msg.voiceURI = 'native';
+                msg.volume = 1;
+                msg.rate = 1;
+                msg.text = message;
+                msg.lang = 'en-US';
+                speechSynthesis.speak(msg);
             }
         }
     });
@@ -95,6 +106,8 @@
             app.nudge();
             if (json.isEdit) {
                 return;
+            } else if (json.isChatBot) {
+                app.speak(json.text);
             }
             updateScroll();
             setTimeout(updateScroll);

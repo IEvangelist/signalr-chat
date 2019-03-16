@@ -13,7 +13,6 @@ namespace IEvangelist.SignalR.Chat.Bots
     public class ChatBotService : BackgroundService
     {
         const string ChatBotUserName = "Joke Bot";
-        const string GateKeeper = nameof(GateKeeper);
 
         readonly IHubContext<ChatHub> _chatHub;
         readonly IDadJokeService _dataJokeService;
@@ -65,7 +64,8 @@ namespace IEvangelist.SignalR.Chat.Bots
                                        {
                                            text = joke,
                                            id = Guid.NewGuid().ToString(),
-                                           user = ChatBotUserName
+                                           user = ChatBotUserName,
+                                           isChatBot = true
                                        },
                                        cancellationToken);
 
