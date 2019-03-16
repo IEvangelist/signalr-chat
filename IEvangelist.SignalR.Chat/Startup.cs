@@ -1,5 +1,8 @@
+using System.Net;
 using System.Security.Claims;
+using IEvangelist.SignalR.Chat.Bots;
 using IEvangelist.SignalR.Chat.Hubs;
+using IEvangelist.SignalR.Chat.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +21,8 @@ namespace IEvangelist.SignalR.Chat
 
         public void ConfigureServices(IServiceCollection services)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
@@ -41,9 +46,13 @@ namespace IEvangelist.SignalR.Chat
                          o.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
                      });
 
+            services.AddHostedService<ChatBotService>();
+            services.AddHttpClient<IDadJokeService, DadJokeService>(
+                client => client.DefaultRequestHeaders.Add("Accept", "text/plain"));
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddSignalR(options => options.EnableDetailedErrors = true)
-                    .AddAzureSignalR();
+            services.AddSignalR(options => options.EnableDetailedErrors = true);
+                    //.AddAzureSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -63,7 +72,8 @@ namespace IEvangelist.SignalR.Chat
                .UseStaticFiles()
                .UseCookiePolicy()
                .UseAuthentication()
-               .UseAzureSignalR(routes => routes.MapHub<ChatHub>("/chat"))
+               .UseSignalR(routes => routes.MapHub<ChatHub>("/chat"))
+               //.UseAzureSignalR(routes => routes.MapHub<ChatHub>("/chat"))
                .UseMvc();
         }
     }

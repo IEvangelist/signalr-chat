@@ -27,14 +27,14 @@
                 if (length) {
                     switch (length) {
                         case 1:
-                            return `📝 <strong>${this.typingUsers[0]}</strong> is typing...`;
+                            return `💬 <strong>${this.typingUsers[0]}</strong> is typing...`;
                         case 2:
-                            return `📝 <strong>${this.typingUsers[0]}</strong> and <strong>${this.typingUsers[1]}</strong> are typing...`;
+                            return `💬 <strong>${this.typingUsers[0]}</strong> and <strong>${this.typingUsers[1]}</strong> are typing...`;
                         default:
-                            return '📝 Multiple people are typing...';
+                            return '💬 Multiple people are typing...';
                     }
                 }
-                return '📝 ';
+                return '&nbsp;';
             }
         },
         methods: {
