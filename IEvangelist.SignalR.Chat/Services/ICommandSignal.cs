@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using IEvangelist.SignalR.Chat.Enums;
 
 namespace IEvangelist.SignalR.Chat.Services
 {
@@ -7,6 +8,8 @@ namespace IEvangelist.SignalR.Chat.Services
     {
         bool IsRecognizedCommand(string message);
 
-        Task WaitCommandAsync(CancellationToken cancellationToken);
+        void Reset(bool isSet);
+
+        Task<BotCommand> WaitCommandAsync(CancellationToken cancellationToken);
     }
 }

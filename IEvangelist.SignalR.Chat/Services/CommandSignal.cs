@@ -1,24 +1,52 @@
-﻿using System.Threading;
+﻿using IEvangelist.SignalR.Chat.Enums;
+using Nito.AsyncEx;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IEvangelist.SignalR.Chat.Services
 {
     public class CommandSignal : ICommandSignal
     {
-        readonly SemaphoreSlim _signal = new SemaphoreSlim(0);
+        AsyncAutoResetEvent _signal = new AsyncAutoResetEvent(false);
+        BotCommand _activeCommand = BotCommand.None;
 
         public bool IsRecognizedCommand(string message)
         {
-            if (message != "joke")
+            switch (message)
             {
-                return false;
+                case "joke":
+                case "tell:joke":
+                    _activeCommand = BotCommand.TellJoke;
+                    break;
+
+                case "jokes":
+                case "say:jokes":
+                    _activeCommand = BotCommand.SayJokes;
+                    break;
+
+                case "stop":
+                case "stop:jokes":
+                    _activeCommand = BotCommand.None;
+                    break;
+
+                default:
+                    return false;
             }
 
-            _signal.Release();
+            if (_activeCommand != BotCommand.None)
+            {
+                _signal.Set();
+            }
+
             return true;
         }
 
-        public Task WaitCommandAsync(CancellationToken cancellationToken) 
-            => _signal.WaitAsync(cancellationToken);
+        public void Reset(bool isSet) => _signal = new AsyncAutoResetEvent(isSet);
+
+        public async Task<BotCommand> WaitCommandAsync(CancellationToken cancellationToken)
+        {
+            await _signal.WaitAsync(cancellationToken);
+            return _activeCommand;
+        }
     }
 }

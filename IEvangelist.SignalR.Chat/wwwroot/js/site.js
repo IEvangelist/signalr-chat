@@ -106,7 +106,7 @@
             app.nudge();
             if (json.isEdit) {
                 return;
-            } else if (json.isChatBot) {
+            } else if (json.isChatBot && json.sayJoke) {
                 app.speak(json.text);
             }
             updateScroll();

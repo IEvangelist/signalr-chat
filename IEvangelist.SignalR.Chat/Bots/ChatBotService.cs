@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using IEvangelist.SignalR.Chat.Enums;
 using IEvangelist.SignalR.Chat.Hubs;
 using IEvangelist.SignalR.Chat.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -12,7 +12,7 @@ namespace IEvangelist.SignalR.Chat.Bots
 {
     public class ChatBotService : BackgroundService
     {
-        const string ChatBotUserName = "Joke Bot";
+        const string ChatBotUserName = "\"Dad\" Joke Bot";
 
         readonly IHubContext<ChatHub> _chatHub;
         readonly IDadJokeService _dataJokeService;
@@ -41,36 +41,26 @@ namespace IEvangelist.SignalR.Chat.Bots
 
                 try
                 {
-                    await _commandSignal.WaitCommandAsync(cancellationToken);
+                    var command = await _commandSignal.WaitCommandAsync(cancellationToken);
+                    switch (command)
+                    {
+                        case BotCommand.TellJoke:
+                            var tellJoke = await PrepareJokeAsync(cancellationToken);
+                            await SendJokeAsync(tellJoke, command, cancellationToken);
+                            _commandSignal.Reset(false);
+                            break;
 
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    await ToggleIsTypingAsync(true, cancellationToken);
-                    await Task.Delay(2500, cancellationToken);
+                        case BotCommand.SayJokes:
+                            var sayJoke = await PrepareJokeAsync(cancellationToken);
+                            await SendJokeAsync(sayJoke, command, cancellationToken);
+                            await Task.Delay(_random.Next(5000, 30000), cancellationToken);
+                            _commandSignal.Reset(true);
+                            break;
 
-                    _logger.LogInformation($"Joke bot was typing for {stopwatch.Elapsed}");
-                    stopwatch.Restart();
-                    
-                    var joke = await _dataJokeService.GetDadJokeAsync();
-                    _logger.LogInformation($"Got a joke, took {stopwatch.Elapsed} to think of one...{joke}.");
-                    stopwatch.Restart();
-
-                    await ToggleIsTypingAsync(false, cancellationToken);
-                    await _chatHub.Clients
-                                  .All
-                                  .SendAsync(
-                                       "MessageReceived",
-                                       new
-                                       {
-                                           text = joke,
-                                           id = Guid.NewGuid().ToString(),
-                                           user = ChatBotUserName,
-                                           isChatBot = true
-                                       },
-                                       cancellationToken);
-
-                    stopwatch.Stop();
-                    _logger.LogInformation($"Joke bot, shared his joke after {stopwatch.Elapsed}");
+                        default:
+                            await Task.Delay(5000, cancellationToken);
+                            continue;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -82,6 +72,31 @@ namespace IEvangelist.SignalR.Chat.Bots
 
             await Task.CompletedTask;
         }
+
+        async Task<string> PrepareJokeAsync(CancellationToken cancellationToken)
+        {
+            await ToggleIsTypingAsync(true, cancellationToken);
+            await Task.Delay(2500, cancellationToken);
+            var joke = await _dataJokeService.GetDadJokeAsync();
+            await ToggleIsTypingAsync(false, cancellationToken);
+
+            return joke;
+        }
+
+        Task SendJokeAsync(string joke, BotCommand command, CancellationToken cancellationToken)
+            => _chatHub.Clients
+                       .All
+                       .SendAsync(
+                            "MessageReceived",
+                            new
+                            {
+                                text = joke,
+                                id = Guid.NewGuid().ToString(),
+                                user = ChatBotUserName,
+                                isChatBot = true,
+                                sayJoke = command == BotCommand.SayJokes
+                            },
+                            cancellationToken);
 
         Task ToggleIsTypingAsync(bool isTyping, CancellationToken cancellationToken)
             => _chatHub.Clients
