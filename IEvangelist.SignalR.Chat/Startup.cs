@@ -50,8 +50,8 @@ namespace IEvangelist.SignalR.Chat
                 client => client.DefaultRequestHeaders.Add("Accept", "text/plain"));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddSignalR(options => options.EnableDetailedErrors = true);
-                    //.AddAzureSignalR();
+            services.AddSignalR(options => options.EnableDetailedErrors = true)
+                    .AddAzureSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -71,9 +71,11 @@ namespace IEvangelist.SignalR.Chat
                .UseStaticFiles()
                .UseCookiePolicy()
                .UseAuthentication()
-               .UseSignalR(routes => routes.MapHub<ChatHub>("/chat"))
-               //.UseAzureSignalR(routes => routes.MapHub<ChatHub>("/chat"))
+               //.UseSignalR(routes => routes.MapHub<ChatHub>("/chat"))
+               .UseAzureSignalR(routes => routes.MapHub<ChatHub>("/chat"))
                .UseMvc();
+
+            // Gone with .NET Core 3.0
         }
     }
 }
