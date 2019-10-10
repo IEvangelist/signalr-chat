@@ -9,7 +9,7 @@ namespace IEvangelist.SignalR.Chat.Services
 
         public DadJokeService(HttpClient httpClient) => _httpClient = httpClient;
 
-        public Task<string> GetDadJokeAsync()
-            => _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
+        public Task<string> GetDadJokeAsync() =>
+            _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
     }
 }

@@ -65,7 +65,7 @@ namespace IEvangelist.SignalR.Chat.Bots
                 catch (Exception ex)
                 {
                     // We don't know (or have a way of knowing) if there are actually clients connected.
-                    // This happen => "The connection is not active, data cannot be sent to the service."
+                    // This happens => "The connection is not active, data cannot be sent to the service."
                     _logger.LogError($"Error: {ex.Message}.", ex);
                 }
             }
@@ -83,31 +83,31 @@ namespace IEvangelist.SignalR.Chat.Bots
             return joke;
         }
 
-        Task SendJokeAsync(string joke, BotCommand command, CancellationToken cancellationToken)
-            => _chatHub.Clients
-                       .All
-                       .SendAsync(
-                            "MessageReceived",
-                            new
-                            {
-                                text = joke,
-                                id = Guid.NewGuid().ToString(),
-                                user = ChatBotUserName,
-                                isChatBot = true,
-                                sayJoke = command == BotCommand.SayJokes
-                            },
-                            cancellationToken);
+        Task SendJokeAsync(string joke, BotCommand command, CancellationToken cancellationToken) => 
+            _chatHub.Clients
+                    .All
+                    .SendAsync(
+                         "MessageReceived",
+                         new
+                         {
+                             text = joke,
+                             id = Guid.NewGuid().ToString(),
+                             user = ChatBotUserName,
+                             isChatBot = true,
+                             sayJoke = command == BotCommand.SayJokes
+                         },
+                         cancellationToken);
 
-        Task ToggleIsTypingAsync(bool isTyping, CancellationToken cancellationToken)
-            => _chatHub.Clients
-                       .All
-                       .SendAsync(
-                            "UserTyping",
-                            new
-                            {
-                                isTyping,
-                                user = ChatBotUserName
-                            },
-                            cancellationToken);
+        Task ToggleIsTypingAsync(bool isTyping, CancellationToken cancellationToken) =>
+            _chatHub.Clients
+                    .All
+                    .SendAsync(
+                         "UserTyping",
+                         new
+                         {
+                             isTyping,
+                             user = ChatBotUserName
+                         },
+                         cancellationToken);
     }
 }

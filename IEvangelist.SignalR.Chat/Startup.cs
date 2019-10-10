@@ -1,9 +1,9 @@
 using IEvangelist.SignalR.Chat.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace IEvangelist.SignalR.Chat
 {
@@ -15,8 +15,7 @@ namespace IEvangelist.SignalR.Chat
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddRazorPages();
 
             services.ConfigureCookiePolicy();
             services.AddChatAuthentication(_configuration);
@@ -26,12 +25,11 @@ namespace IEvangelist.SignalR.Chat
                     .AddAzureSignalR();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -43,9 +41,13 @@ namespace IEvangelist.SignalR.Chat
                .UseStaticFiles()
                .UseCookiePolicy()
                .UseAuthentication()
-               // Gone with .NET Core 3.0
-               .UseAzureSignalR(routes => routes.MapHub<ChatHub>("/chat"))
-               .UseMvc();
+               .UseAuthorization()
+               .UseRouting()
+               .UseEndpoints(routes => 
+               {
+                   routes.MapRazorPages();
+                   routes.MapHub<ChatHub>("/chat");
+               });
         }
     }
 }

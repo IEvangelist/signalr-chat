@@ -11,8 +11,8 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection ConfigureCookiePolicy(
-            this IServiceCollection services)
-            => services.Configure<CookiePolicyOptions>(options =>
+            this IServiceCollection services) =>
+            services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
@@ -48,6 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ICommandSignal, CommandSignal>();
             services.AddHttpClient<IDadJokeService, DadJokeService>(
                 client => client.DefaultRequestHeaders.Add("Accept", "text/plain"));
+
             return services.AddHostedService<ChatBotService>();
         }
     }
