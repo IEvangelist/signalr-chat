@@ -10,6 +10,6 @@ namespace IEvangelist.SignalR.Chat.Services
 
         void Reset(bool isSet);
 
-        Task<BotCommand> WaitCommandAsync(CancellationToken cancellationToken);
+        Task<Command> WaitCommandAsync(CancellationToken cancellationToken);
     }
 }

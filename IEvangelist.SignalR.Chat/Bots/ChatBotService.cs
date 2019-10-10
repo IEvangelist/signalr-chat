@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IEvangelist.SignalR.Chat.Enums;
 using IEvangelist.SignalR.Chat.Hubs;
+using IEvangelist.SignalR.Chat.Providers;
 using IEvangelist.SignalR.Chat.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
@@ -12,23 +13,24 @@ namespace IEvangelist.SignalR.Chat.Bots
 {
     public class ChatBotService : BackgroundService
     {
-        const string ChatBotUserName = "\"Dad\" Joke Bot";
-
         readonly IHubContext<ChatHub> _chatHub;
-        readonly IDadJokeService _dataJokeService;
+        readonly IJokeServiceProvider _jokeServiceProvider;
         readonly ICommandSignal _commandSignal;
+        readonly ITranslationService _translationService;
         readonly ILogger<ChatBotService> _logger;
         readonly Random _random = new Random((int)DateTime.Now.Ticks);
 
         public ChatBotService(
             IHubContext<ChatHub> chatHub,
-            IDadJokeService dataJokeService,
+            IJokeServiceProvider jokeServiceProvider,
             ICommandSignal commandSignal,
+            ITranslationService translationService,
             ILogger<ChatBotService> logger)
         {
             _chatHub = chatHub;
-            _dataJokeService = dataJokeService;
+            _jokeServiceProvider = jokeServiceProvider;
             _commandSignal = commandSignal;
+            _translationService = translationService;
             _logger = logger;
         }
 
@@ -41,20 +43,24 @@ namespace IEvangelist.SignalR.Chat.Bots
 
                 try
                 {
-                    var command = await _commandSignal.WaitCommandAsync(cancellationToken);
+                    var (type, command, lang) = await _commandSignal.WaitCommandAsync(cancellationToken);
                     switch (command)
                     {
                         case BotCommand.TellJoke:
-                            var tellJoke = await PrepareJokeAsync(cancellationToken);
-                            await SendJokeAsync(tellJoke, command, cancellationToken);
-                            _commandSignal.Reset(false);
+                            {
+                                var (joke, bot) = await PrepareJokeAsync(type, lang, cancellationToken);
+                                await SendJokeAsync(joke, bot, lang, cancellationToken);
+                                _commandSignal.Reset(false);
+                            }
                             break;
 
                         case BotCommand.SayJokes:
-                            var sayJoke = await PrepareJokeAsync(cancellationToken);
-                            await SendJokeAsync(sayJoke, command, cancellationToken);
-                            await Task.Delay(_random.Next(5000, 30000), cancellationToken);
-                            _commandSignal.Reset(true);
+                            {
+                                var (joke, bot) = await PrepareJokeAsync(type, lang, cancellationToken);
+                                await SendJokeAsync(joke, bot, lang, cancellationToken);
+                                await Task.Delay(_random.Next(5000, 30000), cancellationToken);
+                                _commandSignal.Reset(true);
+                            }
                             break;
 
                         default:
@@ -73,17 +79,27 @@ namespace IEvangelist.SignalR.Chat.Bots
             await Task.CompletedTask;
         }
 
-        async Task<string> PrepareJokeAsync(CancellationToken cancellationToken)
+        async Task<(string joke, string user)> PrepareJokeAsync(JokeType type, string lang, CancellationToken cancellationToken)
         {
-            await ToggleIsTypingAsync(true, cancellationToken);
-            await Task.Delay(2500, cancellationToken);
-            var joke = await _dataJokeService.GetDadJokeAsync();
-            await ToggleIsTypingAsync(false, cancellationToken);
+            var svc = _jokeServiceProvider.Get(type);
+            var bot = svc.Actor;
 
-            return joke;
+            await ToggleIsTypingAsync(true, bot, cancellationToken);
+            await Task.Delay(2500, cancellationToken);
+            
+            var joke = await svc.GetJokeAsync();
+            if (lang != "en-US")
+            {
+                var (translatedJoke, _) = await _translationService.TranslateAsync(joke, lang);
+                return (translatedJoke, svc.Actor);
+            }
+
+            await ToggleIsTypingAsync(false, bot, cancellationToken);
+
+            return (joke, svc.Actor);
         }
 
-        Task SendJokeAsync(string joke, BotCommand command, CancellationToken cancellationToken) => 
+        Task SendJokeAsync(string joke, string bot, string lang, CancellationToken cancellationToken) =>
             _chatHub.Clients
                     .All
                     .SendAsync(
@@ -91,14 +107,15 @@ namespace IEvangelist.SignalR.Chat.Bots
                          new
                          {
                              text = joke,
+                             lang,
                              id = Guid.NewGuid().ToString(),
-                             user = ChatBotUserName,
+                             user = bot,
                              isChatBot = true,
-                             sayJoke = command == BotCommand.SayJokes
+                             sayJoke = true
                          },
                          cancellationToken);
 
-        Task ToggleIsTypingAsync(bool isTyping, CancellationToken cancellationToken) =>
+        Task ToggleIsTypingAsync(bool isTyping, string bot, CancellationToken cancellationToken) =>
             _chatHub.Clients
                     .All
                     .SendAsync(
@@ -106,7 +123,7 @@ namespace IEvangelist.SignalR.Chat.Bots
                          new
                          {
                              isTyping,
-                             user = ChatBotUserName
+                             user = bot
                          },
                          cancellationToken);
     }

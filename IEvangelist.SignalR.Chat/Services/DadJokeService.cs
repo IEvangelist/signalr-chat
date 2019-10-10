@@ -3,13 +3,16 @@ using System.Threading.Tasks;
 
 namespace IEvangelist.SignalR.Chat.Services
 {
-    public class DadJokeService : IDadJokeService
+    public class DadJokeService : IJokeService
     {
         readonly HttpClient _httpClient;
 
-        public DadJokeService(HttpClient httpClient) => _httpClient = httpClient;
+        public DadJokeService(IHttpClientFactory httpClientFactory) =>
+            _httpClient = httpClientFactory.CreateClient(nameof(DadJokeService));
 
-        public Task<string> GetDadJokeAsync() =>
+        string IJokeService.Actor => "\"Dad\" Joke Bot";
+
+        Task<string> IJokeService.GetJokeAsync() =>
             _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
     }
 }

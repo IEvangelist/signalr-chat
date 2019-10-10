@@ -1,4 +1,5 @@
 using IEvangelist.SignalR.Chat.Hubs;
+using IEvangelist.SignalR.Chat.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,10 @@ namespace IEvangelist.SignalR.Chat
 
             services.ConfigureCookiePolicy();
             services.AddChatAuthentication(_configuration);
-            services.AddChatServices();
+            services.AddChatServices(_configuration);
+
+            services.Configure<TranslatorTextOptions>(
+                _configuration.GetSection(nameof(TranslatorTextOptions)));
 
             services.AddSignalR(options => options.EnableDetailedErrors = true)
                     .AddAzureSignalR();

@@ -81,12 +81,11 @@
             isMyMessage(user) {
                 return user === this.currentUser;
             },
-            speak(message) {
+            speak(message, lang) {
                 const utterance = new SpeechSynthesisUtterance(message);
                 const voices = window.speechSynthesis.getVoices();
-                utterance.voice = voices.find(v => v.name === 'Google US English') || voices[0];
-                utterance.lang = 'en-US';
-                utterance.voiceURI = 'native';
+                utterance.voice =
+                    voices.find(v => !!lang && v.lang.startsWith(lang) || v.name === 'Google US English') || voices[0];
                 utterance.volume = 1;
                 utterance.rate = 1;
 
@@ -107,7 +106,7 @@
             if (json.isEdit) {
                 return;
             } else if (json.isChatBot && json.sayJoke) {
-                app.speak(json.text);
+                app.speak(json.text, json.lang);
             }
             updateScroll();
             setTimeout(updateScroll);

@@ -1,9 +1,11 @@
 ﻿using IEvangelist.SignalR.Chat.Bots;
+using IEvangelist.SignalR.Chat.Providers;
 using IEvangelist.SignalR.Chat.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Security.Claims;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -43,11 +45,28 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         public static IServiceCollection AddChatServices(
-            this IServiceCollection services)
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddSingleton<ICommandSignal, CommandSignal>();
-            services.AddHttpClient<IDadJokeService, DadJokeService>(
+            services.AddTransient<IJokeServiceProvider, JokeServiceProvider>();
+            services.AddTransient<IJokeService, DadJokeService>();
+            services.AddTransient<IJokeService, ChuckNorrisJokeService>();
+
+            services.AddHttpClient(nameof(DadJokeService),
                 client => client.DefaultRequestHeaders.Add("Accept", "text/plain"));
+
+            services.AddHttpClient(nameof(ChuckNorrisJokeService),
+                client => client.DefaultRequestHeaders.Add("Accept", "application/json"));
+
+            services.AddHttpClient<ITranslationService, TranslationService>(
+                client =>
+                {
+                    client.BaseAddress = new Uri(configuration["TranslateTextOptions:Endpoint"]);
+                    client.DefaultRequestHeaders
+                          .Add("Ocp-Apim-Subscription-Key",
+                               configuration["TranslateTextOptions:ApiKey"]);
+                });
 
             return services.AddHostedService<ChatBotService>();
         }
