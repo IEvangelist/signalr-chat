@@ -53,9 +53,11 @@ namespace IEvangelist.SignalR.Chat.Services
             return true;
         }
 
-        public void Reset(bool isSet) => _signal = new AsyncAutoResetEvent(isSet);
+        public void Reset(bool isSet) => 
+            _signal = new AsyncAutoResetEvent(isSet);
 
-        public async Task<Command> WaitCommandAsync(CancellationToken cancellationToken)
+        public async Task<Command> WaitCommandAsync(
+            CancellationToken cancellationToken)
         {
             await _signal.WaitAsync(cancellationToken);
             return (_activeJokeType, _activeCommand, _lang);
@@ -78,14 +80,18 @@ namespace IEvangelist.SignalR.Chat.Services
             Language = lang;
         }
 
-        public void Deconstruct(out JokeType type, out BotCommand command, out string lang)
+        public void Deconstruct(
+            out JokeType type, 
+            out BotCommand command, 
+            out string lang)
         {
             type = JokeType;
             command = BotCommand;
             lang = Language;
         }
 
-        public static implicit operator Command((JokeType type, BotCommand command, string lang) tuple) =>
+        public static implicit operator Command(
+            (JokeType type, BotCommand command, string lang) tuple) =>
             new Command(tuple.type, tuple.command, tuple.lang);
     }
 }

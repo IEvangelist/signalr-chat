@@ -25,11 +25,14 @@ namespace IEvangelist.SignalR.Chat
             services.Configure<TranslatorTextOptions>(
                 _configuration.GetSection(nameof(TranslatorTextOptions)));
 
-            services.AddSignalR(options => options.EnableDetailedErrors = true)
-                    .AddAzureSignalR();
+            services.AddSignalR(
+                options =>
+                    options.EnableDetailedErrors = true);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app, 
+            IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

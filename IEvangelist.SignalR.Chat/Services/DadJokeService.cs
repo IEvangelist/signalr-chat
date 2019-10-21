@@ -7,12 +7,15 @@ namespace IEvangelist.SignalR.Chat.Services
     {
         readonly HttpClient _httpClient;
 
-        public DadJokeService(IHttpClientFactory httpClientFactory) =>
-            _httpClient = httpClientFactory.CreateClient(nameof(DadJokeService));
+        public DadJokeService(
+            IHttpClientFactory httpClientFactory) =>
+            _httpClient = 
+                httpClientFactory.CreateClient(
+                    nameof(DadJokeService));
 
         string IJokeService.Actor => "\"Dad\" Joke Bot";
 
-        Task<string> IJokeService.GetJokeAsync() =>
-            _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
+        async ValueTask<string> IJokeService.GetJokeAsync() =>
+            await _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
     }
 }

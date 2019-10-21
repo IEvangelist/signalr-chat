@@ -6,6 +6,6 @@ namespace IEvangelist.SignalR.Chat.Services
     {
         string Actor { get; }
 
-        Task<string> GetJokeAsync();
+        ValueTask<string> GetJokeAsync();
     }
 }
