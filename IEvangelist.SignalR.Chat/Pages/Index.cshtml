@@ -23,7 +23,7 @@
     <section class="post-container">
         <form v-on:submit.prevent="postMessage">
             <div class="form-row">
-                <div class="form-group col-lg-11">
+                <div class="form-group col-lg-10">
                     <div class="input-group input-group-lg mb-3">
                         <input type="text" class="form-control" placeholder="Type a message..."
                                v-model="message" @@input="setTyping(true)">
@@ -32,8 +32,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group col-lg-1">
-                    <div class="emoji">
+                <div class="form-group col-lg-2">
+                    <div class="emoji float-right">
                         <span v-for="emoji in emojis" v-html="emoji" 
                               @@click="appendToMessage(emoji)">
                         </span>

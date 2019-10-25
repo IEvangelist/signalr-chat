@@ -195,6 +195,7 @@ header {
 }
 
 .emoji {
+    padding-right: 10px;
     font-size: 2rem;
     transition: ease-in-out all .5s;
 }
