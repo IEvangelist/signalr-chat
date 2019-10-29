@@ -11,6 +11,18 @@ namespace IEvangelist.SignalR.Chat.Hubs
     {
         readonly ICommandSignal _commandSignal;
 
+        const string LoginGreetingsFormat =
+@"💯 Hi, {0}! This chat application is powered by SignalR 👍🏽 ... Let's command some joke chatbots!
+<br>
+<br> <strong>Command format:</strong>
+<br> &nbsp; <pre><code>(joke|jokes)[:dad|chucknorris][:en (or another two letter locale i.e.; bg)]</code></pre>
+<br> <strong>Examples:</strong>
+<br> &nbsp; 1) typing ""jokes:chucknorris:bg"" will start the ""Chuck Norris"" chatbot, which will speak jokes continously in Bulgarian.
+<br> &nbsp; 2) typing ""joke"" will start the ""Dad"" chatbot, and speak a single joke in English.
+<br>
+<br> <strong>Notes:</strong>
+<br> &nbsp;Anyone can command these and they are shared for all. Type ""stop"" to issue a global stop command. Finally, mix and match single or continous joke(s), joke types and locales...";
+
         string Username => Context.User.Identity.Name;
 
         public ChatHub(ICommandSignal commandSignal) => _commandSignal = commandSignal;
@@ -21,7 +33,7 @@ namespace IEvangelist.SignalR.Chat.Hubs
                 "MessageReceived",
                 new
                 {
-                    text = $"💯 Hi, {Username}! This chat application is powered by SignalR 👍🏽",
+                    text = string.Format(LoginGreetingsFormat, Username),
                     id = "greeting",
                     isGreeting = true,
                     user = "👋"
