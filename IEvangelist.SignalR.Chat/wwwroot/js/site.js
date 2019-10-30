@@ -14,7 +14,8 @@
             typingUsers: [],
             isTyping: false,
             emojis: ['🤣', '🤬', '🤘'],
-            userLoggedOnMessage: ''
+            userLoggedOnMessage: '',
+            voiceSpeed: 1
         },
         watch: {
             message: _.debounce(function () {
@@ -87,9 +88,9 @@
                 utterance.voice =
                     voices.find(v => !!lang && v.lang.startsWith(lang) || v.name === 'Google US English') || voices[0];
                 utterance.volume = 1;
-                utterance.rate = 1;
+                utterance.rate = this.voiceSpeed || 1;
 
-                speechSynthesis.speak(utterance);
+                window.speechSynthesis.speak(utterance);
             }
         }
     });
@@ -155,6 +156,19 @@
         positionClass: 'toast-top-center',
         preventDuplicates: true
     };
+
+    Vue.config.errorHandler = err => {
+        console.log('Exception: ', err);
+    };
+
+    // Prevent bots from speaking when user closes tab or window.
+    if (window) {
+        window.addEventListener('beforeunload', _ => {
+            if (window.speechSynthesis && window.speechSynthesis.pending === true) {
+                window.speechSynthesis.cancel();
+            }
+        });
+    }
 
     $(':text').focus();
 })();

@@ -34,9 +34,10 @@
                 </div>
                 <div class="form-group col-lg-2">
                     <div class="emoji float-right">
-                        <span v-for="emoji in emojis" v-html="emoji" 
+                        <span v-for="emoji in emojis" v-html="emoji"
                               @@click="appendToMessage(emoji)">
                         </span>
+                        <span style="padding-left: 20px" data-toggle="modal" data-target='#settingsModal'>⚙️</span>
                     </div>
                 </div>
             </div>
@@ -47,4 +48,43 @@
         </form>
     </section>
     <input hidden id="user" value="@User.Identity.Name" />
+
+    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="range">Voice speed: {{voiceSpeed}}</label>
+                            <input type="range" min=".25" max="3" v-model="voiceSpeed"
+                                   step=".25" class="form-control-range" id="range" list="speeds">
+                            <datalist id="speeds">
+                                <option>0.25</option>
+                                <option>0.5</option>
+                                <option>0.75</option>
+                                <option>1</option>
+                                <option>1.25</option>
+                                <option>1.5</option>
+                                <option>1.75</option>
+                                <option>2</option>
+                                <option>2.25</option>
+                                <option>2.5</option>
+                                <option>2.75</option>
+                                <option>3</option>
+                            </datalist>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
