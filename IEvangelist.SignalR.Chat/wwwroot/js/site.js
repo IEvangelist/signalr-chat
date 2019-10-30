@@ -15,7 +15,8 @@
             isTyping: false,
             emojis: ['🤣', '🤬', '🤘'],
             userLoggedOnMessage: '',
-            voiceSpeed: 1
+            voiceSpeed: 1,
+            defaultVoice: 'Auto'
         },
         watch: {
             message: _.debounce(function () {
@@ -64,7 +65,7 @@
             },
             appendEdited(json) {
                 return this.isMyMessage(json.user) && json.isEdit
-                    ? ' <span class="text-muted">(edited)</span>'
+                    ? ' <span class="badge badge-secondary">edited</span>'
                     : '';
             },
             startEdit(json) {
@@ -86,7 +87,9 @@
                 const utterance = new SpeechSynthesisUtterance(message);
                 const voices = window.speechSynthesis.getVoices();
                 utterance.voice =
-                    voices.find(v => !!lang && v.lang.startsWith(lang) || v.name === 'Google US English') || voices[0];
+                    !!this.defaultVoice && this.defaultVoice !== 'Auto'
+                        ? voices.find(v => v.name === this.defaultVoice)
+                        : voices.find(v => !!lang && v.lang.startsWith(lang) || v.name === 'Google US English') || voices[0];
                 utterance.volume = 1;
                 utterance.rate = this.voiceSpeed || 1;
 

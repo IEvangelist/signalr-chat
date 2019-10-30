@@ -2,6 +2,7 @@
 @model IndexModel
 
 <div class="chat" id="chat">
+
     <div class="pb-lg-4 chat-list">
         <transition-group name="list" tag="ul" class="chat-messages">
             <li v-for="[id, value] in toArray(messages)"
@@ -68,6 +69,17 @@
                                 <option v-for="i in Array.from({ length: 12 }, (_, i) => (i + 1) * .25)">{{i}}</option>
                             </datalist>
                         </div>
+                        <div class="form-group">
+                            <label for="voices">Default voice</label>
+                            <select class="form-control" id="voices" v-model="defaultVoice">
+                                <option selected>Auto</option>
+                                <option v-for="voice in speechSynthesis.getVoices()"
+                                        :selected="voice.default"
+                                        :value="voice.name">
+                                    {{voice.name}}
+                                </option>
+                            </select>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -76,4 +88,5 @@
             </div>
         </div>
     </div>
+
 </div>
