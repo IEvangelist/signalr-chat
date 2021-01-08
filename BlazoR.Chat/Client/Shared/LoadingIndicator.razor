@@ -1,0 +1,15 @@
+﻿@attribute [AllowAnonymous]
+
+<div class="grid">
+    <div class="grid-logo">
+        <div class="d-flex align-items-center">
+            <strong>@(LoadingMessage)</strong>
+            <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string LoadingMessage { get; set; } = "Loading, please wait...";
+}

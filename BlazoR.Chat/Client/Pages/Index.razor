@@ -1,0 +1,10 @@
+﻿@page "/"
+
+<AuthorizeView>
+    <NotAuthorized>
+        <Login />
+    </NotAuthorized>
+    <Authorized>
+        <ChatRoom />
+    </Authorized>
+</AuthorizeView>
