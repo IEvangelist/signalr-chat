@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Net.Http.Headers;
 using System.Linq;
 using System.Net.Mime;
 
@@ -21,12 +20,13 @@ namespace BlazoR.Chat.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            //services.AddCors();
+            services.AddMemoryCache();
             services.AddResponseCompression(
                 options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { MediaTypeNames.Application.Octet }));
 
-            services.AddAppAuthentication(_configuration);
+            //services.AddAppAuthentication(_configuration);
             services.AddAppServices(_configuration);
 
             services.AddControllersWithViews();
@@ -57,13 +57,13 @@ namespace BlazoR.Chat.Server
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseCors(policy =>
-                policy.WithOrigins("http://localhost:5000", "https://localhost:5001")
-                    .AllowAnyMethod()
-                    .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
-                    .AllowCredentials());
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseCors(policy =>
+            //    policy.WithOrigins("http://localhost:5000", "https://localhost:5001")
+            //        .AllowAnyMethod()
+            //        .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
+            //        .AllowCredentials());
+            //app.UseAuthentication();
+            //app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();

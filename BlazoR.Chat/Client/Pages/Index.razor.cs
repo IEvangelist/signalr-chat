@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace BlazoR.Chat.Client.Pages
 {
     public partial class Index
     {
+        public bool IsJoined { get; set; }
+        public string Username { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+
+        }
+
+        public void Join() => IsJoined = Username is not { Length: >= 3 };
     }
 }

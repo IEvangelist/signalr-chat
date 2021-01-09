@@ -11,6 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoR.Chat.Client", "Blazo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoR.Chat.Shared", "BlazoR.Chat\Shared\BlazoR.Chat.Shared.csproj", "{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingChatter.Server", "BlazingChatter\Server\BlazingChatter.Server.csproj", "{04C183CE-D8D2-434D-A082-2982095D09F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingChatter.Client", "BlazingChatter\Client\BlazingChatter.Client.csproj", "{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingChatter.Shared", "BlazingChatter\Shared\BlazingChatter.Shared.csproj", "{E2874FA2-340A-4007-A0E4-8289DBBC3606}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +39,18 @@ Global
 		{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04C183CE-D8D2-434D-A082-2982095D09F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04C183CE-D8D2-434D-A082-2982095D09F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04C183CE-D8D2-434D-A082-2982095D09F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04C183CE-D8D2-434D-A082-2982095D09F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2874FA2-340A-4007-A0E4-8289DBBC3606}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2874FA2-340A-4007-A0E4-8289DBBC3606}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2874FA2-340A-4007-A0E4-8289DBBC3606}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2874FA2-340A-4007-A0E4-8289DBBC3606}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

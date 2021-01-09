@@ -1,10 +1,19 @@
 ﻿@page "/"
 
-<AuthorizeView>
-    <NotAuthorized>
-        <Login />
-    </NotAuthorized>
-    <Authorized>
-        <ChatRoom />
-    </Authorized>
-</AuthorizeView>
+@if (IsJoined)
+{
+    <ChatRoom Name="Username" />
+}
+else
+{
+    <div class="form-group">
+        <div class="input-group mb-3">
+            <div>
+                <input type="text" value="@Username" />
+            </div>
+            <div class="input-group-append">
+                <a class="btn-primary input-group-text" @onclick="@Join">Join</a>
+            </div>
+        </div>
+    </div>
+}
