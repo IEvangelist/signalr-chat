@@ -11,11 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoR.Chat.Client", "Blazo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoR.Chat.Shared", "BlazoR.Chat\Shared\BlazoR.Chat.Shared.csproj", "{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingChatter.Server", "BlazingChatter\Server\BlazingChatter.Server.csproj", "{04C183CE-D8D2-434D-A082-2982095D09F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingChatter.Server", "BlazingChatter\Server\BlazingChatter.Server.csproj", "{04C183CE-D8D2-434D-A082-2982095D09F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingChatter.Client", "BlazingChatter\Client\BlazingChatter.Client.csproj", "{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingChatter.Client", "BlazingChatter\Client\BlazingChatter.Client.csproj", "{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazingChatter.Shared", "BlazingChatter\Shared\BlazingChatter.Shared.csproj", "{E2874FA2-340A-4007-A0E4-8289DBBC3606}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingChatter.Shared", "BlazingChatter\Shared\BlazingChatter.Shared.csproj", "{E2874FA2-340A-4007-A0E4-8289DBBC3606}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
