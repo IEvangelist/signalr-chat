@@ -84,12 +84,12 @@ namespace BlazingChatter.Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/Identity/Account/Register",
-                    context => Task.Factory.StartNew(
-                        () => context.Response.Redirect("/Identity/Account/Login", true, true)));
-                endpoints.MapPost("/Identity/Account/Register",
-                    context => Task.Factory.StartNew(
-                        () => context.Response.Redirect("/Identity/Account/Login", true, true)));
+                static Task register(HttpContext context) =>
+                    Task.Factory.StartNew(
+                        () => context.Response.Redirect("/Identity/Account/Login", true, true));
+
+                endpoints.MapGet("/Identity/Account/Register", register);
+                endpoints.MapPost("/Identity/Account/Register", register);
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
