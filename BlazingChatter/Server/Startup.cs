@@ -90,10 +90,11 @@ namespace BlazingChatter.Server
 
                 endpoints.MapGet("/Identity/Account/Register", RegisterTask);
                 endpoints.MapPost("/Identity/Account/Register", RegisterTask);
+
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html");
                 endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }

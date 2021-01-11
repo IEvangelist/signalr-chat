@@ -5,8 +5,10 @@
 @inject SignOutSessionStateManager SignOutManager
 
 <AuthorizeView>
+    <Authorizing>
+        <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+    </Authorizing>
     <Authorized>
-        <a href="authentication/profile">Hello, @context.User.Identity.Name!</a>
         <button class="nav-link btn btn-link" @onclick="OnLogOut">Log out</button>
     </Authorized>
     <NotAuthorized>

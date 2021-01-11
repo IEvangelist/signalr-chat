@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
 using BlazingChatter.Services;
+using BlazingChatter.Shared;
 
 namespace BlazingChatter.Hubs
 {
-    [Authorize]
-    public class ChatHub : Hub // <IChatHub>
+    public class ChatHub : Hub<IChatClient>
     {
         readonly ICommandSignalService _commandSignal;
 
@@ -29,31 +28,14 @@ namespace BlazingChatter.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            await Clients.Caller.SendAsync(
-                "MessageReceived",
-                new
-                {
-                    text = string.Format(LoginGreetingsFormat, Username),
-                    id = "greeting",
-                    isGreeting = true,
-                    user = "👋"
-                });
+            await Clients.Caller.MessageReceived(
+                new ActorMessage("greeting", string.Format(LoginGreetingsFormat, Username), "👋", true));
 
-            await Clients.Others.SendAsync(
-                "UserLoggedOn", 
-                new
-                {
-                    user = Username
-                });
+            await Clients.Others.UserLoggedOn(new Actor(Username));
         }
 
-        public override async Task OnDisconnectedAsync(Exception ex) 
-            => await Clients.Others.SendAsync(
-                "UserLoggedOff",
-                new
-                {
-                    user = Username
-                });
+        public override async Task OnDisconnectedAsync(Exception ex)
+             => await Clients.Others.UserLoggedOff(new Actor(Username));
 
         public async Task PostMessage(string message, string id = null)
         {
@@ -62,89 +44,13 @@ namespace BlazingChatter.Hubs
                 return;
             }
 
-            await Clients.All.SendAsync(
-                "MessageReceived",
-                new
-                {
-                    text = message,
-                    id = UseOrCreateId(id),
-                    isEdit = id != null,
-                    user = Username
-                });
+            await Clients.All.MessageReceived(
+                new ActorMessage(UseOrCreateId(id), message, Username, false, id is not null));
         }
-
-        public async Task UserTyping(bool isTyping)
-            => await Clients.Others.SendAsync(
-                "UserTyping",
-                new
-                {
-                    isTyping,
-                    user = Username
-                });
-
-        static string UseOrCreateId(string id)
-            => string.IsNullOrWhiteSpace(id)
-                ? Guid.NewGuid().ToString()
-                : id;
-    }
-
-    public interface IChatHub
-    {
-        Task UserLoggedOn(object args);
-
-        Task UserLoggedOff(object args);
-
-        Task UserTyping(object args);
-
-        Task MessageReceived(object args);
-    }
-
-    public class StronglyTypedChatHub : Hub<IChatHub>
-    {
-        string Username => Context.User.Identity.Name;
-
-        public override async Task OnConnectedAsync()
-        {
-            await Clients.Caller.MessageReceived(
-                new
-                {
-                    text = $"💯 Hi, {Username}! This chat application is powered by SignalR 👍🏽",
-                    id = "greeting",
-                    isGreeting = true,
-                    user = "👋"
-                });
-
-            await Clients.Others.UserLoggedOn(
-                new
-                {
-                    user = Username
-                });
-        }
-
-        public override async Task OnDisconnectedAsync(Exception ex)
-            => await Clients.Others.UserLoggedOff(
-                new
-                {
-                    user = Username
-                });
-
-        public async Task PostMessage(string message, string id = null)
-            => await Clients.All.MessageReceived(
-                new
-                {
-                    text = message,
-                    id = UseOrCreateId(id),
-                    isEdit = id != null,
-                    user = Username
-                });
 
         public async Task UserTyping(bool isTyping)
             => await Clients.Others.UserTyping(
-                new
-                {
-                    isTyping,
-                    user = Username
-                });
+                new ActorAction(Username, isTyping));
 
         static string UseOrCreateId(string id)
             => string.IsNullOrWhiteSpace(id)
