@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BlazingChatter.Client.Interop
@@ -6,8 +7,8 @@ namespace BlazingChatter.Client.Interop
     public static class JavaScriptExtensions
     {
         public static async ValueTask SpeakAsync(
-            this IJSRuntime javaScript, string message, string defaultVoice, int voiceSpeed) =>
-            await javaScript.InvokeVoidAsync("app.speak", message, defaultVoice, voiceSpeed);
+            this IJSRuntime javaScript, string message, string defaultVoice, double voiceSpeed, string lang) =>
+            await javaScript.InvokeVoidAsync("app.speak", message, defaultVoice, voiceSpeed, lang);
 
         public static async ValueTask NotifyAsync(
             this IJSRuntime javaScript, string title, string message) =>
@@ -20,5 +21,12 @@ namespace BlazingChatter.Client.Interop
         public static async ValueTask FocusAsync(
             this IJSRuntime javaScript, string elementId) =>
             await javaScript.InvokeVoidAsync("app.focus", elementId);
+
+        public static async ValueTask<List<SpeechSynthesisVoice>> GetClientVoices<T>(
+            this IJSRuntime javaScript,
+            T instance) where T : class =>
+            await javaScript.InvokeAsync<List<SpeechSynthesisVoice>>(
+                "app.getClientVoices", DotNetObjectReference.Create(instance));
+
     }
 }

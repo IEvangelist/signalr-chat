@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -17,11 +18,17 @@ namespace BlazingChatter.Client.Pages
         readonly Dictionary<string, ActorMessage> _messages = new(StringComparer.OrdinalIgnoreCase);
         readonly HashSet<Actor> _usersTyping = new();
         readonly string _inputElementId = "message-input";
+        readonly List<double> _voiceSpeeds =
+            Enumerable.Range(0, 12).Select(i => (i + 1) * .25).ToList();
 
         HubConnection _hubConnection;
         string _messageId;
         string _message;
         bool _isTyping;
+
+        List<SpeechSynthesisVoice> _voices;
+        string _voice = "Auto";
+        double _voiceSpeed = 1;
 
         [Parameter]
         public ClaimsPrincipal User { get; set; }
@@ -64,6 +71,8 @@ namespace BlazingChatter.Client.Pages
 
             await _hubConnection.StartAsync();
             await JavaScript.FocusAsync(_inputElementId);
+            await UpdateClientVoices(
+                await JavaScript.GetClientVoices(this));
         }
 
         async Task SendMessage()
@@ -108,7 +117,7 @@ namespace BlazingChatter.Client.Pages
 
                     if (message.IsChatBot && message.SayJoke)
                     {
-                        await JavaScript.SpeakAsync(message.Text, "Auto", 1);
+                        await JavaScript.SpeakAsync(message.Text, _voice, _voiceSpeed, message.Lang);
                     }
 
                     await JavaScript.ScrollIntoViewAsync();
@@ -133,6 +142,8 @@ namespace BlazingChatter.Client.Pages
                 {
                     _usersTyping.Remove(new(user));
                 }
+
+                StateHasChanged();
             });
         }
 
@@ -156,5 +167,15 @@ namespace BlazingChatter.Client.Pages
                     StateHasChanged();
                 });
         }
+
+        [JSInvokable]
+        public async Task UpdateClientVoices(
+            List<SpeechSynthesisVoice> voices) =>
+            await InvokeAsync(() =>
+            {
+                _voices = voices;
+
+                StateHasChanged();
+            });
     }
 }

@@ -1,11 +1,13 @@
 ﻿window.app = {
-    speak: (message, defaultVoice, voiceSpeed) => {
+    speak: (message, defaultVoice, voiceSpeed, lang) => {
         const utterance = new SpeechSynthesisUtterance(message);
         const voices = window.speechSynthesis.getVoices();
-        utterance.voice =
-            !!defaultVoice && defaultVoice !== 'Auto'
-                ? voices.find(v => v.name === defaultVoice)
-                : voices.find(v => !!lang && v.lang.startsWith(lang) || v.name === 'Google US English') || voices[0];
+        try {
+            utterance.voice =
+                !!defaultVoice && defaultVoice !== 'Auto'
+                    ? voices.find(v => v.name === defaultVoice)
+                    : voices.find(v => !!lang && v.lang.startsWith(lang) || v.name === 'Google US English') || voices[0];
+        } catch { }
         utterance.volume = 1;
         utterance.rate = voiceSpeed || 1;
 
@@ -25,6 +27,15 @@
         if (element) {
             element.focus();
         }
+    },
+    getClientVoices: dotnetObj => {
+        let voices = speechSynthesis.getVoices();
+        if (!voices || !voices.length) {
+            speechSynthesis.onvoiceschanged =
+                dotnetObj.invokeMethodAsync(
+                    "UpdateClientVoices", voices = speechSynthesis.getVoices());
+        }
+        return voices;
     }
 };
 

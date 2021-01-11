@@ -1,5 +1,6 @@
 ﻿<div class="chat" id="chat">
 
+    @* Chat messages container *@
     <div class="pb-lg-4 chat-list">
         <transition-group name="list" tag="ul" class="chat-messages">
             @foreach (var (id, message) in _messages)
@@ -13,9 +14,9 @@
                     <div class="message pl-lg-2 @(OwnsMessage(message.User) ? "canEdit" : "")"
                          @onclick="@(async () => await StartEdit(message))">
                         @{
-                            MarkupString markup = new(message.Text);
+                            MarkupString messageMarkup = new(message.Text);
                             <span>
-                                @markup
+                                @messageMarkup
                             </span>
                             @if (message.IsEdit)
                             {
@@ -30,6 +31,7 @@
         </transition-group>
     </div>
 
+    @* Post message input / button *@
     <section class="post-container">
         <div class="form-row">
             <div class="form-group col-lg-10">
@@ -54,22 +56,25 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="text-muted @(_usersTyping is { Count: > 0 } ? "flashing" : "")">
-                @{
-                    static string UsersTypingText(string[] usersTyping) => usersTyping?.Length switch
-                    {
-                        0 => "&nbsp;",
-                        1 => $"💬 < strong >{usersTyping[0]}</strong> is typing...",
-                        2 => $"💬 <strong>${usersTyping[0]}</strong> and <strong>${usersTyping[1]}</strong> are typing...",
-                        _ => "💬 Multiple people are typing..."
-                    };
+            @{
+                static string UsersTypingText(string[] usersTyping) => usersTyping?.Length switch
+                {
+                    0 => "&nbsp;",
+                    1 => $"💬 <strong>{usersTyping[0]}</strong> is typing...",
+                    2 => $"💬 <strong>${usersTyping[0]}</strong> and <strong>${usersTyping[1]}</strong> are typing...",
+                    _ => "💬 Multiple people are typing..."
+                };
 
-                    new MarkupString(UsersTypingText(_usersTyping?.Select(a => a.User).ToArray()));
-                }
-            </span>
+                MarkupString isTypingMarkup = new(UsersTypingText(_usersTyping?.Select(a => a.User).ToArray()));
+                <span class="text-muted @(_usersTyping is { Count: > 0 } ? "flashing" : "")">
+                    @isTypingMarkup
+                </span>
+            }
+
         </div>
     </section>
 
+    @* Voice settings modal *@
     <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -82,22 +87,31 @@
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="range">Voice speed: {{voiceSpeed}}</label>
-                            <input type="range" min=".25" max="3" v-model="voiceSpeed"
-                                   step=".25" class="form-control-range" id="range" list="speeds">
+                            <label for="range">Voice speed: @_voiceSpeed</label>
+                            <input type="range" min="@_voiceSpeeds.Min()" max="@_voiceSpeeds.Max()"
+                                   step=".25" class="form-control-range" id="range" list="speeds"
+                                   value="@_voiceSpeed"
+                                   @onchange="(args => _voiceSpeed = double.TryParse(args.Value.ToString(), out var speed) ? speed : 1)">
                             <datalist id="speeds">
-                                <option v-for="i in Array.from({ length: 12 }, (_, i) => (i + 1) * .25)">{{i}}</option>
+                                @foreach (var speed in _voiceSpeeds)
+                                {
+                                    <option value="@speed">speed</option>
+                                }
                             </datalist>
                         </div>
                         <div class="form-group">
                             <label for="voices">Default voice</label>
-                            <select class="form-control" id="voices" v-model="defaultVoice">
+                            <select class="form-control" id="voices" @bind="@_voice">
                                 <option selected>Auto</option>
-                                <option v-for="voice in speechSynthesis.getVoices()"
-                                        :selected="voice.default"
-                                        :value="voice.name">
-                                    {{voice.name}}
-                                </option>
+                                @if (_voices is { Count: > 0 })
+                                {
+                                    @foreach (var voice in _voices)
+                                    {
+                                        <option selected="@voice.Default" value="@voice.Name">
+                                            @voice.Name
+                                        </option>
+                                    }
+                                }
                             </select>
                         </div>
                     </form>
