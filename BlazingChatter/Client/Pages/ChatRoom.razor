@@ -35,24 +35,38 @@
             <div class="form-group col-lg-10">
                 <div class="input-group input-group-lg mb-3">
                     <input type="text" class="form-control" placeholder="Type a message..."
-                            v-model="message" @@input="setTyping(true)">
+                           @bind-value="@_message" @oninput="@(() => SetIsTyping(true))">
                     <div class="input-group-append">
-                        <button class="btn btn-lg btn-primary" type="submit">Post</button>
+                        <button class="btn btn-lg btn-primary" @onclick="@SendMessage">Post</button>
                     </div>
                 </div>
             </div>
             <div class="form-group col-lg-2">
                 <div class="emoji float-right">
-                    <span v-for="emoji in emojis" v-html="emoji"
-                            @@click="appendToMessage(emoji)">
-                    </span>
+                    @foreach (var emoji in new[] { "🤣", "🤬", "🤘" })
+                    {
+                        <span @onclick="@(() => AppendToMessage(emoji))">
+                            @emoji
+                        </span>
+                    }
                     <span style="padding-left: 20px" data-toggle="modal" data-target='#settingsModal'>⚙️</span>
                 </div>
             </div>
         </div>
         <div class="form-row">
-            <span class="text-muted" v-bind:class="{ flashing: isFlashing }"
-                    v-html="usersTyping"></span>
+            <span class="text-muted @(_usersTyping is { Length: > 0 } ? "flashing" : "")">
+                @{
+                    static string UsersTypingText(string[] usersTyping) => usersTyping?.Length switch
+                    {
+                        0 => "&nbsp;",
+                        1 => $"💬 < strong >{usersTyping[0]}</strong> is typing...",
+                        2 => $"💬 <strong>${usersTyping[0]}</strong> and <strong>${usersTyping[1]}</strong> are typing...",
+                        _ => "💬 Multiple people are typing..."
+                    };
+
+                    new MarkupString(UsersTypingText(_usersTyping));
+                }
+            </span>
         </div>
     </section>
 
