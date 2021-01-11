@@ -8,12 +8,13 @@ using BlazingChatter.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BlazingChatter.Shared;
 
 namespace BlazingChatter.Bots
 {
     public class ChatBot : BackgroundService
     {
-        readonly IHubContext<ChatHub> _chatHub;
+        readonly IHubContext<ChatHub, IChatClient> _chatHub;
         readonly IJokeServiceFactory _jokeServiceFactory;
         readonly ICommandSignalService _commandSignalService;
         readonly ITranslationService _translationService;
@@ -21,7 +22,7 @@ namespace BlazingChatter.Bots
         readonly Random _random = new((int)DateTime.Now.Ticks);
 
         public ChatBot(
-            IHubContext<ChatHub> chatHub,
+            IHubContext<ChatHub, IChatClient> chatHub,
             IJokeServiceFactory jokeServiceProvider,
             ICommandSignalService commandSignal,
             ITranslationService translationService,
@@ -45,7 +46,7 @@ namespace BlazingChatter.Bots
                     JokeType jokeType, string language, CancellationToken token)
                 {
                     var (joke, bot) = await PrepareJokeAsync(jokeType, language, token);
-                    await SendJokeAsync(joke, bot, language, token);
+                    await SendJokeAsync(joke, bot, language);
                     _commandSignalService.Reset(false);
                 }
 
@@ -53,7 +54,7 @@ namespace BlazingChatter.Bots
                     JokeType jokeType, string language, CancellationToken token)
                 {
                     var (joke, bot) = await PrepareJokeAsync(jokeType, language, token);
-                    await SendJokeAsync(joke, bot, language, cancellationToken);
+                    await SendJokeAsync(joke, bot, language);
                     await Task.Delay(_random.Next(7500, 15000), cancellationToken);
                     _commandSignalService.Reset(true);
                 }
@@ -87,13 +88,13 @@ namespace BlazingChatter.Bots
             var svc = _jokeServiceFactory.Get(type);
             var bot = svc.Actor;
 
-            await ToggleIsTypingAsync(true, bot, cancellationToken);
+            await ToggleIsTypingAsync(true, bot);
             await Task.Delay(_random.Next(1000, 3000), cancellationToken);
 
             var joke = await svc.GetJokeAsync();
-            await ToggleIsTypingAsync(false, bot, cancellationToken);
+            await ToggleIsTypingAsync(false, bot);
 
-            if (lang != "en-US")
+            if (lang is { Length: > 0 } && lang != "en-US")
             {
                 var (translatedJoke, _) = await _translationService.TranslateAsync(joke, lang);
                 return (translatedJoke, bot);
@@ -102,26 +103,18 @@ namespace BlazingChatter.Bots
             return (joke, bot);
         }
 
-        Task SendJokeAsync(string joke, string bot, string lang, CancellationToken cancellationToken) =>
+        Task SendJokeAsync(string joke, string bot, string lang) =>
             _chatHub.Clients.All
-                .SendAsync(
-                "MessageReceived",
-                new
-                {
-                    text = joke,
-                    lang,
-                    id = Guid.NewGuid().ToString(),
-                    user = bot,
-                    isChatBot = true,
-                    sayJoke = true
-                },
-                cancellationToken);
+                .MessageReceived(
+                new ActorMessage(
+                    Id: Guid.NewGuid().ToString(),
+                    Text: joke,
+                    User: bot,
+                    Lang: lang,
+                    IsChatBot: true,
+                    SayJoke: true));
 
-        Task ToggleIsTypingAsync(bool isTyping, string bot, CancellationToken cancellationToken) =>
-            _chatHub.Clients.All
-                .SendAsync(
-                "UserTyping",
-                new { isTyping, user = bot },
-                cancellationToken);
+        Task ToggleIsTypingAsync(bool isTyping, string bot) =>
+            _chatHub.Clients.All.UserTyping(new ActorAction(bot, isTyping));
     }
 }

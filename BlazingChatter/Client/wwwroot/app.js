@@ -15,6 +15,16 @@
         if (toastr) {
             toastr.info(message, title);
         }
+    },
+    updateScroll: () => {
+        const element = document.querySelector('html');
+        element.scrollTop = element.scrollHeight;
+    },
+    focus: (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.focus();
+        }
     }
 };
 

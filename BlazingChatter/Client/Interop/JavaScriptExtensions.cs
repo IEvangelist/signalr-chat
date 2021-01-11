@@ -7,10 +7,18 @@ namespace BlazingChatter.Client.Interop
     {
         public static async ValueTask SpeakAsync(
             this IJSRuntime javaScript, string message, string defaultVoice, int voiceSpeed) =>
-            await javaScript.InvokeVoidAsync("speak", message, defaultVoice, voiceSpeed);
+            await javaScript.InvokeVoidAsync("app.speak", message, defaultVoice, voiceSpeed);
 
         public static async ValueTask NotifyAsync(
             this IJSRuntime javaScript, string title, string message) =>
-            await javaScript.InvokeVoidAsync("notify", title, message);
+            await javaScript.InvokeVoidAsync("app.notify", title, message);
+
+        public static async ValueTask ScrollIntoViewAsync(
+            this IJSRuntime javaScript) =>
+            await javaScript.InvokeVoidAsync("app.updateScroll");
+
+        public static async ValueTask FocusAsync(
+            this IJSRuntime javaScript, string elementId) =>
+            await javaScript.InvokeVoidAsync("app.focus", elementId);
     }
 }

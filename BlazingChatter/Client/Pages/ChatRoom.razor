@@ -34,8 +34,8 @@
         <div class="form-row">
             <div class="form-group col-lg-10">
                 <div class="input-group input-group-lg mb-3">
-                    <input type="text" class="form-control" placeholder="Type a message..."
-                           @bind-value="@_message" @oninput="@(() => SetIsTyping(true))">
+                    <input id="@_inputElementId" type="text" class="form-control" placeholder="Type a message..."
+                           @bind-value="@_message" @oninput="@(_ => SetIsTyping(true))">
                     <div class="input-group-append">
                         <button class="btn btn-lg btn-primary" @onclick="@SendMessage">Post</button>
                     </div>

@@ -2,9 +2,11 @@
 using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -14,6 +16,7 @@ namespace BlazingChatter.Client.Pages
     {
         readonly Dictionary<string, ActorMessage> _messages = new(StringComparer.OrdinalIgnoreCase);
         readonly HashSet<Actor> _usersTyping = new();
+        readonly string _inputElementId = "message-input";
 
         HubConnection _hubConnection;
         string _messageId;
@@ -29,26 +32,38 @@ namespace BlazingChatter.Client.Pages
         [Inject]
         public IJSRuntime JavaScript { get; set; }
 
+        [Inject]
+        public HttpClient Http { get; set; }
+
+        [Inject]
+        public ILogger<ChatRoom> Log { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(
                     Nav.ToAbsoluteUri("/chat"),
                     options =>
-                    {
-                        
-                    })
+                        options.AccessTokenProvider =
+                            async () =>
+                            {
+                                var token = await Http.GetStringAsync("genaratetoken");
+                                Log.LogInformation($"Server token: {token}");
+
+                                return token;
+                            })
                 .WithAutomaticReconnect()
                 .Build();
 
             _hubConnection.On<ActorMessage>("MessageReceived", OnMessageReceivedAsync);
             _hubConnection.On<Actor>("UserLoggedOn",
                 async actor => await JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on..."));
-            _hubConnection.On<Actor>("UserLoggedoff",
+            _hubConnection.On<Actor>("UserLoggedOff",
                 async actor => await JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off..."));
             _hubConnection.On<ActorAction>("UserTyping", OnUserTypingAsync);
 
             await _hubConnection.StartAsync();
+            await JavaScript.FocusAsync(_inputElementId);
         }
 
         async Task SendMessage()
@@ -71,6 +86,8 @@ namespace BlazingChatter.Client.Pages
                 return;
             }
 
+            Log.LogInformation($"Setting is typing: {isTyping}");
+
             await _hubConnection.InvokeAsync("UserTyping", _isTyping = isTyping);
         }
 
@@ -78,17 +95,26 @@ namespace BlazingChatter.Client.Pages
         {
             _message += text;
 
+            await JavaScript.FocusAsync(_inputElementId);
             await SetIsTyping(false);
         }
 
         async Task OnMessageReceivedAsync(ActorMessage message)
         {
-            await InvokeAsync(() =>
-            {
-                _messages[message.Id] = message;
+            await InvokeAsync(
+                async () =>
+                {
+                    _messages[message.Id] = message;
 
-                StateHasChanged();
-            });
+                    if (message.IsChatBot && message.SayJoke)
+                    {
+                        await JavaScript.SpeakAsync(message.Text, "Auto", 1);
+                    }
+
+                    await JavaScript.ScrollIntoViewAsync();
+
+                    StateHasChanged();
+                });
         }
 
         async Task OnUserTypingAsync(ActorAction actorAction)
@@ -96,13 +122,16 @@ namespace BlazingChatter.Client.Pages
             await InvokeAsync(() =>
             {
                 var (user, isTyping) = actorAction;
+
+                Log.LogInformation($"User: {user} is typing value: {isTyping}");
+
                 if (isTyping)
                 {
-                    _usersTyping.Add(actorAction);
+                    _usersTyping.Add(new(user));
                 }
                 else
                 {
-                    _usersTyping.Remove(actorAction);
+                    _usersTyping.Remove(new(user));
                 }
             });
         }
@@ -111,13 +140,21 @@ namespace BlazingChatter.Client.Pages
 
         async Task StartEdit(ActorMessage message)
         {
-            await InvokeAsync(() =>
+            if (!OwnsMessage(message.User))
             {
-                _messageId = message.Id;
-                _message = message.Text;
+                return;
+            }
 
-                StateHasChanged();
-            });
+            await InvokeAsync(
+                async () =>
+                {
+                    _messageId = message.Id;
+                    _message = message.Text;
+
+                    await JavaScript.FocusAsync(_inputElementId);
+
+                    StateHasChanged();
+                });
         }
     }
 }

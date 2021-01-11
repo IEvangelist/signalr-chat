@@ -29,7 +29,8 @@ namespace BlazingChatter.Hubs
         public override async Task OnConnectedAsync()
         {
             await Clients.Caller.MessageReceived(
-                new ActorMessage("greeting", string.Format(LoginGreetingsFormat, Username), "👋", true));
+                new ActorMessage(
+                    "greeting", string.Format(LoginGreetingsFormat, Username), "👋", IsGreeting: true));
 
             await Clients.Others.UserLoggedOn(new Actor(Username));
         }
@@ -45,7 +46,7 @@ namespace BlazingChatter.Hubs
             }
 
             await Clients.All.MessageReceived(
-                new ActorMessage(UseOrCreateId(id), message, Username, false, id is not null));
+                new ActorMessage(UseOrCreateId(id), message, Username, IsEdit: id is not null));
         }
 
         public async Task UserTyping(bool isTyping)
