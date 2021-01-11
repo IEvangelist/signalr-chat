@@ -1,6 +1,8 @@
-﻿using BlazingChatter.Shared;
+﻿using BlazingChatter.Client.Interop;
+using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -11,11 +13,11 @@ namespace BlazingChatter.Client.Pages
     public partial class ChatRoom
     {
         readonly Dictionary<string, ActorMessage> _messages = new(StringComparer.OrdinalIgnoreCase);
-        
+        readonly HashSet<Actor> _usersTyping = new();
+
         HubConnection _hubConnection;
         string _messageId;
         string _message;
-        string[] _usersTyping;
         bool _isTyping;
 
         [Parameter]
@@ -24,14 +26,27 @@ namespace BlazingChatter.Client.Pages
         [Inject]
         public NavigationManager Nav { get; set; }
 
+        [Inject]
+        public IJSRuntime JavaScript { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(Nav.ToAbsoluteUri("/chat"))
+                .WithUrl(
+                    Nav.ToAbsoluteUri("/chat"),
+                    options =>
+                    {
+                        
+                    })
                 .WithAutomaticReconnect()
                 .Build();
 
             _hubConnection.On<ActorMessage>("MessageReceived", OnMessageReceivedAsync);
+            _hubConnection.On<Actor>("UserLoggedOn",
+                async actor => await JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on..."));
+            _hubConnection.On<Actor>("UserLoggedoff",
+                async actor => await JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off..."));
+            _hubConnection.On<ActorAction>("UserTyping", OnUserTypingAsync);
 
             await _hubConnection.StartAsync();
         }
@@ -73,6 +88,22 @@ namespace BlazingChatter.Client.Pages
                 _messages[message.Id] = message;
 
                 StateHasChanged();
+            });
+        }
+
+        async Task OnUserTypingAsync(ActorAction actorAction)
+        {
+            await InvokeAsync(() =>
+            {
+                var (user, isTyping) = actorAction;
+                if (isTyping)
+                {
+                    _usersTyping.Add(actorAction);
+                }
+                else
+                {
+                    _usersTyping.Remove(actorAction);
+                }
             });
         }
 

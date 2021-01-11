@@ -5,12 +5,6 @@ VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IEvangelist.SignalR.Chat", "IEvangelist.SignalR.Chat\IEvangelist.SignalR.Chat.csproj", "{571D6F94-CAEB-4562-938B-CB6EF72BA144}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoR.Chat.Server", "BlazoR.Chat\Server\BlazoR.Chat.Server.csproj", "{76FD4C6A-A542-44F7-87D9-526593AFFF42}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoR.Chat.Client", "BlazoR.Chat\Client\BlazoR.Chat.Client.csproj", "{05C9B19F-2789-4F65-9B77-884D349182F4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazoR.Chat.Shared", "BlazoR.Chat\Shared\BlazoR.Chat.Shared.csproj", "{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingChatter.Server", "BlazingChatter\Server\BlazingChatter.Server.csproj", "{04C183CE-D8D2-434D-A082-2982095D09F9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingChatter.Client", "BlazingChatter\Client\BlazingChatter.Client.csproj", "{B617CD3D-AC4E-4C69-BA2F-E3D6FF61051E}"
@@ -27,18 +21,6 @@ Global
 		{571D6F94-CAEB-4562-938B-CB6EF72BA144}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{571D6F94-CAEB-4562-938B-CB6EF72BA144}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{571D6F94-CAEB-4562-938B-CB6EF72BA144}.Release|Any CPU.Build.0 = Release|Any CPU
-		{76FD4C6A-A542-44F7-87D9-526593AFFF42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{76FD4C6A-A542-44F7-87D9-526593AFFF42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{76FD4C6A-A542-44F7-87D9-526593AFFF42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{76FD4C6A-A542-44F7-87D9-526593AFFF42}.Release|Any CPU.Build.0 = Release|Any CPU
-		{05C9B19F-2789-4F65-9B77-884D349182F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{05C9B19F-2789-4F65-9B77-884D349182F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{05C9B19F-2789-4F65-9B77-884D349182F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{05C9B19F-2789-4F65-9B77-884D349182F4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B13B1CB3-8D6B-47BC-8430-91E5BE4F71C3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{04C183CE-D8D2-434D-A082-2982095D09F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{04C183CE-D8D2-434D-A082-2982095D09F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04C183CE-D8D2-434D-A082-2982095D09F9}.Release|Any CPU.ActiveCfg = Release|Any CPU

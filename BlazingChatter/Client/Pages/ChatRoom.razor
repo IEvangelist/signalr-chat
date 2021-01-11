@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="text-muted @(_usersTyping is { Length: > 0 } ? "flashing" : "")">
+            <span class="text-muted @(_usersTyping is { Count: > 0 } ? "flashing" : "")">
                 @{
                     static string UsersTypingText(string[] usersTyping) => usersTyping?.Length switch
                     {
@@ -64,7 +64,7 @@
                         _ => "💬 Multiple people are typing..."
                     };
 
-                    new MarkupString(UsersTypingText(_usersTyping));
+                    new MarkupString(UsersTypingText(_usersTyping?.Select(a => a.User).ToArray()));
                 }
             </span>
         </div>

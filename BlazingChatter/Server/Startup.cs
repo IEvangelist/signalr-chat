@@ -3,7 +3,9 @@ using BlazingChatter.Options;
 using BlazingChatter.Server.Data;
 using BlazingChatter.Server.Extensions;
 using BlazingChatter.Server.Models;
+using BlazingChatter.Server.Options;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +13,9 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -44,6 +48,10 @@ namespace BlazingChatter.Server
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
+
+            services.TryAddEnumerable(
+                ServiceDescriptor.Singleton
+                    <IPostConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>());
 
             services.AddAppAuthentication(_configuration);
             services.AddAppServices(_configuration);

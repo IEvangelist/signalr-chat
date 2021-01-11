@@ -49,12 +49,9 @@ namespace BlazingChatter.Hubs
         }
 
         public async Task UserTyping(bool isTyping)
-            => await Clients.Others.UserTyping(
-                new ActorAction(Username, isTyping));
+            => await Clients.Others.UserTyping(new ActorAction(Username, isTyping));
 
         static string UseOrCreateId(string id)
-            => string.IsNullOrWhiteSpace(id)
-                ? Guid.NewGuid().ToString()
-                : id;
+            => string.IsNullOrWhiteSpace(id) ? Guid.NewGuid().ToString() : id;
     }
 }
