@@ -22,12 +22,6 @@
         const element = document.querySelector('html');
         element.scrollTop = element.scrollHeight;
     },
-    focus: (id) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.focus();
-        }
-    },
     getClientVoices: dotnetObj => {
         let voices = speechSynthesis.getVoices();
         if (!voices || !voices.length) {

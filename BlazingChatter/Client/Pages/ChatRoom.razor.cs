@@ -30,6 +30,7 @@ namespace BlazingChatter.Client.Pages
         string _message;
         bool _isTyping;
 
+        ElementReference _messageInput;
         List<SpeechSynthesisVoice> _voices;
         string _voice = "Auto";
         double _voiceSpeed = 1;
@@ -66,8 +67,8 @@ namespace BlazingChatter.Client.Pages
                 async actor => await JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off..."));
 
             await _hubConnection.StartAsync();
+            await _messageInput.FocusAsync();
 
-            await JavaScript.FocusElementAsync(_inputElementId);
             await UpdateClientVoices(
                 await JavaScript.GetClientVoices(this));
         }
