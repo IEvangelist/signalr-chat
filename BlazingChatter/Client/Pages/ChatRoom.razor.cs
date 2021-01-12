@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace BlazingChatter.Client.Pages
 {
@@ -24,6 +25,11 @@ namespace BlazingChatter.Client.Pages
         readonly string _inputElementId = "message-input";
         readonly List<double> _voiceSpeeds =
             Enumerable.Range(0, 12).Select(i => (i + 1) * .25).ToList();
+        readonly Timer _debouceTimer = new()
+        {
+            Interval = 750,
+            AutoReset = false
+        };
 
         HubConnection _hubConnection;
         string _messageId;
@@ -34,6 +40,10 @@ namespace BlazingChatter.Client.Pages
         List<SpeechSynthesisVoice> _voices;
         string _voice = "Auto";
         double _voiceSpeed = 1;
+
+        public ChatRoom() => 
+            _debouceTimer.Elapsed +=
+                async (sender, args) => await SetIsTyping(false);
 
         [Parameter]
         public ClaimsPrincipal User { get; set; }
@@ -106,14 +116,9 @@ namespace BlazingChatter.Client.Pages
             await InvokeAsync(() =>
             {
                 var (user, isTyping) = actorAction;
-                if (isTyping)
-                {
-                    _usersTyping.Add(new(user));
-                }
-                else
-                {
-                    _usersTyping.Remove(new(user));
-                }
+                _ = isTyping
+                    ? _usersTyping.Add(new(user))
+                    : _usersTyping.Remove(new(user));
 
                 StateHasChanged();
             });
@@ -139,6 +144,14 @@ namespace BlazingChatter.Client.Pages
             }
         }
 
+        async Task InitiateDebounceUserIsTyping()
+        {
+            _debouceTimer.Stop();
+            _debouceTimer.Start();
+
+            await SetIsTyping(true);
+        }
+
         async Task SetIsTyping(bool isTyping)
         {
             if (_isTyping && isTyping)
@@ -155,7 +168,7 @@ namespace BlazingChatter.Client.Pages
         {
             _message += text;
 
-            await JavaScript.FocusElementAsync(_inputElementId);
+            await _messageInput.FocusAsync();
             await SetIsTyping(false);
         }
 
@@ -174,7 +187,7 @@ namespace BlazingChatter.Client.Pages
                     _messageId = message.Id;
                     _message = message.Text;
 
-                    await JavaScript.FocusElementAsync(_inputElementId);
+                    await _messageInput.FocusAsync();
 
                     StateHasChanged();
                 });

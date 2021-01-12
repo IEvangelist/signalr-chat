@@ -37,7 +37,7 @@
             <div class="form-group col-lg-10">
                 <div class="input-group input-group-lg mb-3">
                     <input @ref="_messageInput" type="text" class="form-control" placeholder="Type a message..."
-                           @bind-value="@_message" @oninput="@(_ => SetIsTyping(true))"
+                           @bind-value="@_message" @oninput="@InitiateDebounceUserIsTyping"
                            @onkeyup="@(args => OnKeyUp(args))" autocomplete="off">
                     <div class="input-group-append">
                         <button class="btn btn-lg btn-primary" @onclick="@SendMessage">Post</button>

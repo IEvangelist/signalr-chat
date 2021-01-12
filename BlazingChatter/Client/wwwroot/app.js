@@ -28,7 +28,9 @@
             speechSynthesis.onvoiceschanged = () => {
                 voices = speechSynthesis.getVoices();
                 dotnetObj.invokeMethodAsync(
-                    "UpdateClientVoices", JSON.stringify(voices.map(v => ({ Name: v.name, Lang: v.lang, Default: v.default }))));
+                    "UpdateClientVoices",
+                    JSON.stringify(voices.map(
+                        voice => ({ Name: voice.name, Lang: voice.lang, Default: voice.default }))));
             }
         }
 
