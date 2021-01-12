@@ -104,8 +104,7 @@ namespace BlazingChatter.Bots
         }
 
         Task SendJokeAsync(string joke, string bot, string lang) =>
-            _chatHub.Clients.All
-                .MessageReceived(
+            _chatHub.Clients.All.MessageReceived(
                 new ActorMessage(
                     Id: Guid.NewGuid().ToString(),
                     Text: joke,

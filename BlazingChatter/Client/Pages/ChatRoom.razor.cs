@@ -1,4 +1,5 @@
 ﻿using BlazingChatter.Client.Interop;
+using BlazingChatter.Extensions;
 using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -52,16 +53,6 @@ namespace BlazingChatter.Client.Pages
                 .WithAutomaticReconnect()
                 .Build();
 
-            //options =>
-            //            options.AccessTokenProvider =
-            //                async () =>
-            //                {
-            //                    var token = await Http.GetStringAsync("generatetoken");
-            //                    Log.LogInformation($"Server token: {token}");
-
-            //                    return token;
-            //                }
-
             _hubConnection.On<ActorMessage>("MessageReceived", OnMessageReceivedAsync);
             _hubConnection.On<Actor>("UserLoggedOn",
                 async actor => await JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on..."));
@@ -73,39 +64,6 @@ namespace BlazingChatter.Client.Pages
             await JavaScript.FocusAsync(_inputElementId);
             await UpdateClientVoices(
                 await JavaScript.GetClientVoices(this));
-        }
-
-        async Task SendMessage()
-        {
-            if (_message is { Length: > 0 })
-            {
-                await _hubConnection.InvokeAsync("PostMessage", _message, _messageId);
-
-                _message = null;
-                _messageId = null;
-
-                StateHasChanged();
-            }
-        }
-
-        async Task SetIsTyping(bool isTyping)
-        {
-            if (_isTyping && isTyping)
-            {
-                return;
-            }
-
-            Log.LogInformation($"Setting is typing: {isTyping}");
-
-            await _hubConnection.InvokeAsync("UserTyping", _isTyping = isTyping);
-        }
-
-        async Task AppendToMessage(string text)
-        {
-            _message += text;
-
-            await JavaScript.FocusAsync(_inputElementId);
-            await SetIsTyping(false);
         }
 
         async Task OnMessageReceivedAsync(ActorMessage message)
@@ -147,6 +105,39 @@ namespace BlazingChatter.Client.Pages
             });
         }
 
+        async Task SendMessage()
+        {
+            if (_message is { Length: > 0 })
+            {
+                await _hubConnection.InvokeAsync("PostMessage", _message, _messageId);
+
+                _message = null;
+                _messageId = null;
+
+                StateHasChanged();
+            }
+        }
+
+        async Task SetIsTyping(bool isTyping)
+        {
+            if (_isTyping && isTyping)
+            {
+                return;
+            }
+
+            Log.LogInformation($"Setting is typing: {isTyping}");
+
+            await _hubConnection.InvokeAsync("UserTyping", _isTyping = isTyping);
+        }
+
+        async Task AppendToMessage(string text)
+        {
+            _message += text;
+
+            await JavaScript.FocusAsync(_inputElementId);
+            await SetIsTyping(false);
+        }
+
         bool OwnsMessage(string user) => User.Identity.Name == user;
 
         async Task StartEdit(ActorMessage message)
@@ -169,11 +160,15 @@ namespace BlazingChatter.Client.Pages
         }
 
         [JSInvokable]
-        public async Task UpdateClientVoices(
-            List<SpeechSynthesisVoice> voices) =>
+        public async Task UpdateClientVoices(string voicesJson) =>
             await InvokeAsync(() =>
             {
+                Log.LogInformation($"Voices: {voicesJson}");
+
+                var voices = voicesJson.FromJson<List<SpeechSynthesisVoice>>();
                 _voices = voices;
+
+                Log.LogInformation($"Voices: {string.Join(", ", _voices)}");
 
                 StateHasChanged();
             });

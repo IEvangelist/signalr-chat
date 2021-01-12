@@ -8,5 +8,7 @@
         public bool Default { get; set; }
         public string Lang { get; set; }
         public string Name { get; set; }
+
+        public override string ToString() => Name;
     }
 }

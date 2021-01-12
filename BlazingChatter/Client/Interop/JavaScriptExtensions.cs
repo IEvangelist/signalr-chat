@@ -22,10 +22,10 @@ namespace BlazingChatter.Client.Interop
             this IJSRuntime javaScript, string elementId) =>
             await javaScript.InvokeVoidAsync("app.focus", elementId);
 
-        public static async ValueTask<List<SpeechSynthesisVoice>> GetClientVoices<T>(
+        public static async ValueTask<string> GetClientVoices<T>(
             this IJSRuntime javaScript,
             T instance) where T : class =>
-            await javaScript.InvokeAsync<List<SpeechSynthesisVoice>>(
+            await javaScript.InvokeAsync<string>(
                 "app.getClientVoices", DotNetObjectReference.Create(instance));
 
     }

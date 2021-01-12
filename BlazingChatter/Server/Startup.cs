@@ -3,22 +3,16 @@ using BlazingChatter.Options;
 using BlazingChatter.Server.Data;
 using BlazingChatter.Server.Extensions;
 using BlazingChatter.Server.Models;
-using BlazingChatter.Server.Options;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Net.Mime;
-using System.Threading.Tasks;
 
 namespace BlazingChatter.Server
 {
@@ -88,13 +82,6 @@ namespace BlazingChatter.Server
 
             app.UseEndpoints(endpoints =>
             {
-                //static Task RegisterTask(HttpContext context) =>
-                //    Task.Factory.StartNew(
-                //        () => context.Response.Redirect("/Identity/Account/Login", true, true));
-
-                //endpoints.MapGet("/Identity/Account/Register", RegisterTask);
-                //endpoints.MapPost("/Identity/Account/Register", RegisterTask);
-
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/chat");

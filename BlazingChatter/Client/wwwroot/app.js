@@ -31,11 +31,14 @@
     getClientVoices: dotnetObj => {
         let voices = speechSynthesis.getVoices();
         if (!voices || !voices.length) {
-            speechSynthesis.onvoiceschanged =
+            speechSynthesis.onvoiceschanged = () => {
+                voices = speechSynthesis.getVoices();
                 dotnetObj.invokeMethodAsync(
-                    "UpdateClientVoices", voices = speechSynthesis.getVoices());
+                    "UpdateClientVoices", JSON.stringify(voices.map(v => ({ Name: v.name, Lang: v.lang, Default: v.default }))));
+            }
         }
-        return voices;
+
+        return JSON.stringify(voices.map(v => ({ Name: v.name, Lang: v.lang, Default: v.default })));
     }
 };
 
