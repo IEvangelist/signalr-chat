@@ -40,7 +40,7 @@ namespace BlazingChatter.Server
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()
@@ -48,10 +48,6 @@ namespace BlazingChatter.Server
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
-
-            services.TryAddEnumerable(
-                ServiceDescriptor.Singleton
-                    <IPostConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>());
 
             services.AddAppAuthentication(_configuration);
             services.AddAppServices(_configuration);

@@ -48,19 +48,19 @@ namespace BlazingChatter.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(
-                    Nav.ToAbsoluteUri("/chat"),
-                    options =>
-                        options.AccessTokenProvider =
-                            async () =>
-                            {
-                                var token = await Http.GetStringAsync("genaratetoken");
-                                Log.LogInformation($"Server token: {token}");
-
-                                return token;
-                            })
+                .WithUrl(Nav.ToAbsoluteUri("/chat"))
                 .WithAutomaticReconnect()
                 .Build();
+
+            //options =>
+            //            options.AccessTokenProvider =
+            //                async () =>
+            //                {
+            //                    var token = await Http.GetStringAsync("generatetoken");
+            //                    Log.LogInformation($"Server token: {token}");
+
+            //                    return token;
+            //                }
 
             _hubConnection.On<ActorMessage>("MessageReceived", OnMessageReceivedAsync);
             _hubConnection.On<Actor>("UserLoggedOn",
