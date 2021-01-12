@@ -94,9 +94,20 @@ namespace BlazingChatter.Bots
             var joke = await svc.GetJokeAsync();
             await ToggleIsTypingAsync(false, bot);
 
+            _logger.LogInformation($"Joke Bot, processing joke (lang:{lang}): {joke}");
+
             if (lang is { Length: > 0 } && lang != "en-US")
             {
-                var (translatedJoke, _) = await _translationService.TranslateAsync(joke, lang);
+                var (translatedJoke, isTranslated) = await _translationService.TranslateAsync(joke, lang);
+                if (isTranslated)
+                {
+                    _logger.LogInformation($"Joke Bot, translated to {lang}: {translatedJoke}");
+                }
+                else
+                {
+                    _logger.LogInformation("Failed to translate joke...it's not funny!");
+                }
+
                 return (translatedJoke, bot);
             }
 

@@ -77,7 +77,21 @@ namespace BlazingChatter.Client.Pages
                     _messages[message.Id] = message;
                     if (message.IsChatBot && message.SayJoke)
                     {
-                        await JavaScript.SpeakAsync(message.Text, _voice, _voiceSpeed, message.Lang);
+                        var lang = message.Lang;
+                        var voice = _voices?.FirstOrDefault(v => v.Name == _voice);
+                        if (voice is not null)
+                        {
+                            if (!voice.Lang.StartsWith(lang))
+                            {
+                                var firstLocaleMatchingVoice = _voices.FirstOrDefault(v => v.Lang.StartsWith(lang));
+                                if (firstLocaleMatchingVoice is not null)
+                                {
+                                    lang = firstLocaleMatchingVoice.Lang[0..2];
+                                }
+                            }
+                        }
+
+                        await JavaScript.SpeakAsync(message.Text, _voice, _voiceSpeed, lang);
                     }
 
                     await JavaScript.ScrollIntoViewAsync();

@@ -63,8 +63,9 @@ namespace BlazingChatter.Server.Extensions
                 {
                     client.BaseAddress = new(configuration["TranslateTextOptions:Endpoint"]);
                     client.DefaultRequestHeaders
-                          .Add("Ocp-Apim-Subscription-Key",
-                               configuration["TranslateTextOptions:ApiKey"]);
+                          .Add("Ocp-Apim-Subscription-Key", configuration["TranslateTextOptions:ApiKey"]);
+                    client.DefaultRequestHeaders
+                          .Add("Ocp-Apim-Subscription-Region", configuration["TranslateTextOptions:Region"]);
                 });
 
             return services.AddHostedService<ChatBot>();
