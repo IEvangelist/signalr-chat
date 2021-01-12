@@ -22,7 +22,6 @@ namespace BlazingChatter.Client.Pages
     {
         readonly Dictionary<string, ActorMessage> _messages = new(StringComparer.OrdinalIgnoreCase);
         readonly HashSet<Actor> _usersTyping = new();
-        readonly string _inputElementId = "message-input";
         readonly List<double> _voiceSpeeds =
             Enumerable.Range(0, 12).Select(i => (i + 1) * .25).ToList();
         readonly Timer _debouceTimer = new()
@@ -72,9 +71,9 @@ namespace BlazingChatter.Client.Pages
             _hubConnection.OnUserTyping(OnUserTypingAsync);
 
             _hubConnection.OnUserLoggedOn(
-                async actor => await JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on..."));
+                actor => JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on..."));
             _hubConnection.OnUserLoggedOff(
-                async actor => await JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off..."));
+                actor => JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off..."));
 
             await _hubConnection.StartAsync();
             await _messageInput.FocusAsync();
