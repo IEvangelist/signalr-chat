@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.4.0" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.0" />
   </ItemGroup>
 
