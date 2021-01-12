@@ -20,7 +20,7 @@
                             </span>
                             @if (message.IsEdit)
                             {
-                                <span class="text-muted">
+                                <span class="pl-2 text-muted">
                                     <span class="badge badge-secondary">edited</span>
                                 </span>
                             }
@@ -37,7 +37,8 @@
             <div class="form-group col-lg-10">
                 <div class="input-group input-group-lg mb-3">
                     <input id="@_inputElementId" type="text" class="form-control" placeholder="Type a message..."
-                           @bind-value="@_message" @oninput="@(_ => SetIsTyping(true))">
+                           @bind-value="@_message" @oninput="@(_ => SetIsTyping(true))"
+                           @onkeyup="@(args => OnKeyUp(args))" autocomplete="off">
                     <div class="input-group-append">
                         <button class="btn btn-lg btn-primary" @onclick="@SendMessage">Post</button>
                     </div>

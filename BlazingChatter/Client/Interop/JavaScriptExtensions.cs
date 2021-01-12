@@ -1,5 +1,4 @@
 ﻿using Microsoft.JSInterop;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BlazingChatter.Client.Interop

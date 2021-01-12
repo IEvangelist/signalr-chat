@@ -1,7 +1,9 @@
-﻿using BlazingChatter.Client.Interop;
+﻿using BlazingChatter.Client.Extensions;
+using BlazingChatter.Client.Interop;
 using BlazingChatter.Extensions;
 using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -53,26 +55,26 @@ namespace BlazingChatter.Client.Pages
                 .WithAutomaticReconnect()
                 .Build();
 
-            _hubConnection.On<ActorMessage>("MessageReceived", OnMessageReceivedAsync);
-            _hubConnection.On<Actor>("UserLoggedOn",
+            _hubConnection.OnMessageReceived(OnMessageReceivedAsync);
+            _hubConnection.OnUserTyping(OnUserTypingAsync);
+
+            _hubConnection.OnUserLoggedOn(
                 async actor => await JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on..."));
-            _hubConnection.On<Actor>("UserLoggedOff",
+            _hubConnection.OnUserLoggedOff(
                 async actor => await JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off..."));
-            _hubConnection.On<ActorAction>("UserTyping", OnUserTypingAsync);
 
             await _hubConnection.StartAsync();
+
             await JavaScript.FocusAsync(_inputElementId);
             await UpdateClientVoices(
                 await JavaScript.GetClientVoices(this));
         }
 
-        async Task OnMessageReceivedAsync(ActorMessage message)
-        {
+        async Task OnMessageReceivedAsync(ActorMessage message) =>
             await InvokeAsync(
                 async () =>
                 {
                     _messages[message.Id] = message;
-
                     if (message.IsChatBot && message.SayJoke)
                     {
                         await JavaScript.SpeakAsync(message.Text, _voice, _voiceSpeed, message.Lang);
@@ -82,16 +84,11 @@ namespace BlazingChatter.Client.Pages
 
                     StateHasChanged();
                 });
-        }
 
-        async Task OnUserTypingAsync(ActorAction actorAction)
-        {
+        async Task OnUserTypingAsync(ActorAction actorAction) =>
             await InvokeAsync(() =>
             {
                 var (user, isTyping) = actorAction;
-
-                Log.LogInformation($"User: {user} is typing value: {isTyping}");
-
                 if (isTyping)
                 {
                     _usersTyping.Add(new(user));
@@ -103,6 +100,13 @@ namespace BlazingChatter.Client.Pages
 
                 StateHasChanged();
             });
+
+        async Task OnKeyUp(KeyboardEventArgs args)
+        {
+            if (args is { Key: "Enter" } and { Code: "Enter" })
+            {
+                await SendMessage();
+            }
         }
 
         async Task SendMessage()
@@ -163,14 +167,13 @@ namespace BlazingChatter.Client.Pages
         public async Task UpdateClientVoices(string voicesJson) =>
             await InvokeAsync(() =>
             {
-                Log.LogInformation($"Voices: {voicesJson}");
-
                 var voices = voicesJson.FromJson<List<SpeechSynthesisVoice>>();
-                _voices = voices;
+                if (voices is { Count: > 0 })
+                {
+                    _voices = voices;
 
-                Log.LogInformation($"Voices: {string.Join(", ", _voices)}");
-
-                StateHasChanged();
+                    StateHasChanged();
+                }
             });
     }
 }
