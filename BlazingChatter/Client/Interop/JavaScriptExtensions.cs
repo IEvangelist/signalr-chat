@@ -17,7 +17,7 @@ namespace BlazingChatter.Client.Interop
             this IJSRuntime javaScript) =>
             await javaScript.InvokeVoidAsync("app.updateScroll");
 
-        public static async ValueTask FocusAsync(
+        public static async ValueTask FocusElementAsync(
             this IJSRuntime javaScript, string elementId) =>
             await javaScript.InvokeVoidAsync("app.focus", elementId);
 

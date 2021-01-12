@@ -1,5 +1,4 @@
 using BlazingChatter.Hubs;
-using BlazingChatter.Options;
 using BlazingChatter.Server.Data;
 using BlazingChatter.Server.Extensions;
 using BlazingChatter.Server.Models;
@@ -48,10 +47,8 @@ namespace BlazingChatter.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            services.Configure<TranslatorTextOptions>(
-                _configuration.GetSection(nameof(TranslatorTextOptions)));
-
-            services.AddSignalR(options => options.EnableDetailedErrors = true);
+            services.AddSignalR(options => options.EnableDetailedErrors = true)
+                    .AddMessagePackProtocol();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -5,6 +5,7 @@ using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
@@ -53,6 +54,7 @@ namespace BlazingChatter.Client.Pages
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(Nav.ToAbsoluteUri("/chat"))
                 .WithAutomaticReconnect()
+                .AddMessagePackProtocol()
                 .Build();
 
             _hubConnection.OnMessageReceived(OnMessageReceivedAsync);
@@ -65,7 +67,7 @@ namespace BlazingChatter.Client.Pages
 
             await _hubConnection.StartAsync();
 
-            await JavaScript.FocusAsync(_inputElementId);
+            await JavaScript.FocusElementAsync(_inputElementId);
             await UpdateClientVoices(
                 await JavaScript.GetClientVoices(this));
         }
@@ -152,7 +154,7 @@ namespace BlazingChatter.Client.Pages
         {
             _message += text;
 
-            await JavaScript.FocusAsync(_inputElementId);
+            await JavaScript.FocusElementAsync(_inputElementId);
             await SetIsTyping(false);
         }
 
@@ -171,7 +173,7 @@ namespace BlazingChatter.Client.Pages
                     _messageId = message.Id;
                     _message = message.Text;
 
-                    await JavaScript.FocusAsync(_inputElementId);
+                    await JavaScript.FocusElementAsync(_inputElementId);
 
                     StateHasChanged();
                 });
