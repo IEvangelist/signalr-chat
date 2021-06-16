@@ -1,7 +1,6 @@
 ﻿using Nito.AsyncEx;
 using BlazingChatter.Enums;
 using BlazingChatter.Records;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,7 +24,14 @@ namespace BlazingChatter.Services
             var commandAndLang = message.Split(":");
             var command = commandAndLang[0];
 
-            _activeJokeType = commandAndLang.Length > 1 ? (JokeType)Enum.Parse(typeof(JokeType), commandAndLang[1], true) : JokeType.Dad;
+            static JokeType ParseJokeType(string value) => value switch
+            { 
+                "dad" or "d" => JokeType.Dad,
+                "chucknorris" or "cn" => JokeType.ChuckNorris,
+
+                _ => JokeType.Dad
+            };
+            _activeJokeType = commandAndLang.Length > 1 ? ParseJokeType(commandAndLang[1]) : JokeType.Dad;
             _lang = commandAndLang.Length > 2 ? commandAndLang[2] : "en";
             _activeCommand = command switch
             {

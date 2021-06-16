@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using BlazingChatter.Enums;
+﻿using BlazingChatter.Enums;
 using BlazingChatter.Factories;
 using BlazingChatter.Hubs;
 using BlazingChatter.Services;
+using BlazingChatter.Shared;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using BlazingChatter.Shared;
 
 namespace BlazingChatter.Bots
 {
@@ -66,7 +66,7 @@ namespace BlazingChatter.Bots
                     {
                         BotCommand.TellJoke => TellJokeAsync(type, lang, cancellationToken),
                         BotCommand.SayJokes => SayJokesAsync(type, lang, cancellationToken),
-                        _ => Task.Delay(5000, cancellationToken)
+                        _ => Task.Delay(TimeSpan.FromSeconds(5), cancellationToken)
                     };
 
                     await task;
@@ -89,7 +89,8 @@ namespace BlazingChatter.Bots
             var bot = svc.Actor;
 
             await ToggleIsTypingAsync(true, bot);
-            await Task.Delay(_random.Next(1000, 3000), cancellationToken);
+            await Task.Delay(
+                TimeSpan.FromMilliseconds(_random.Next(1_000, 3_000)), cancellationToken);
 
             var joke = await svc.GetJokeAsync();
             await ToggleIsTypingAsync(false, bot);

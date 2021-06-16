@@ -4,6 +4,7 @@ using BlazingChatter.Extensions;
 using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ namespace BlazingChatter.Client.Pages
         };
 
         HubConnection _hubConnection;
-        
+
         string _messageId;
         string _message;
         bool _isTyping;
@@ -42,7 +43,7 @@ namespace BlazingChatter.Client.Pages
         string _voice = "Auto";
         double _voiceSpeed = 1;
 
-        public ChatRoom() => 
+        public ChatRoom() =>
             _debouceTimer.Elapsed +=
                 async (sender, args) => await SetIsTyping(false);
 
@@ -61,10 +62,15 @@ namespace BlazingChatter.Client.Pages
         [Inject]
         public ILogger<ChatRoom> Log { get; set; }
 
+        [Inject]
+        public IAccessTokenProvider TokenProvider { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl(Nav.ToAbsoluteUri("/chat"))
+                .WithUrl(Nav.ToAbsoluteUri("/chat"),
+                    options => options.AccessTokenProvider =
+                        async () => await GetAccessTokenValueAsync())
                 .WithAutomaticReconnect()
                 .AddMessagePackProtocol()
                 .Build();
@@ -82,6 +88,12 @@ namespace BlazingChatter.Client.Pages
 
             await UpdateClientVoices(
                 await JavaScript.GetClientVoices(this));
+        }
+
+        async ValueTask<string> GetAccessTokenValueAsync()
+        {
+            var result = await TokenProvider.RequestAccessToken();
+            return result.TryGetToken(out var accessToken) ? accessToken.Value : null;
         }
 
         async Task OnMessageReceivedAsync(ActorMessage message) =>
