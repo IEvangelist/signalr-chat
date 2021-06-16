@@ -18,10 +18,11 @@ using System.Timers;
 
 namespace BlazingChatter.Client.Pages
 {
-    public partial class ChatRoom
+    public partial class ChatRoom : IAsyncDisposable
     {
         readonly Dictionary<string, ActorMessage> _messages = new(StringComparer.OrdinalIgnoreCase);
         readonly HashSet<Actor> _usersTyping = new();
+        readonly HashSet<IDisposable> _hubRegistrations = new();
         readonly List<double> _voiceSpeeds =
             Enumerable.Range(0, 12).Select(i => (i + 1) * .25).ToList();
         readonly Timer _debouceTimer = new()
@@ -31,6 +32,7 @@ namespace BlazingChatter.Client.Pages
         };
 
         HubConnection _hubConnection;
+        
         string _messageId;
         string _message;
         bool _isTyping;
@@ -67,13 +69,13 @@ namespace BlazingChatter.Client.Pages
                 .AddMessagePackProtocol()
                 .Build();
 
-            _hubConnection.OnMessageReceived(OnMessageReceivedAsync);
-            _hubConnection.OnUserTyping(OnUserTypingAsync);
+            _hubRegistrations.Add(_hubConnection.OnMessageReceived(OnMessageReceivedAsync));
+            _hubRegistrations.Add(_hubConnection.OnUserTyping(OnUserTypingAsync));
 
-            _hubConnection.OnUserLoggedOn(
-                actor => JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on..."));
-            _hubConnection.OnUserLoggedOff(
-                actor => JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off..."));
+            _hubRegistrations.Add(_hubConnection.OnUserLoggedOn(
+                actor => JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on...")));
+            _hubRegistrations.Add(_hubConnection.OnUserLoggedOff(
+                actor => JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off...")));
 
             await _hubConnection.StartAsync();
             await _messageInput.FocusAsync();
@@ -204,5 +206,27 @@ namespace BlazingChatter.Client.Pages
                     StateHasChanged();
                 }
             });
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_debouceTimer is { })
+            {
+                _debouceTimer.Stop();
+                _debouceTimer.Dispose();
+            }
+
+            if (_hubRegistrations is { Count: > 0 })
+            {
+                foreach (var disposable in _hubRegistrations)
+                {
+                    disposable.Dispose();
+                }
+            }
+
+            if (_hubConnection is not null)
+            {
+                await _hubConnection.DisposeAsync();
+            }
+        }
     }
 }

@@ -1,12 +1,8 @@
 using BlazingChatter.Hubs;
-using BlazingChatter.Server.Data;
 using BlazingChatter.Server.Extensions;
-using BlazingChatter.Server.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +13,8 @@ namespace BlazingChatter.Server
 {
     public class Startup
     {
+        const string CorsPolicy = nameof(CorsPolicy);
+
         readonly IConfiguration _configuration;
 
         public Startup(IConfiguration configuration) => _configuration = configuration;
@@ -27,23 +25,20 @@ namespace BlazingChatter.Server
                 options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { MediaTypeNames.Application.Octet }));
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    _configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddDatabaseDeveloperPageExceptionFilter();
-
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-
-            services.AddIdentityServer()
-                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-
-            services.AddAuthentication()
-                .AddIdentityServerJwt();
-
             services.AddAppAuthentication(_configuration);
             services.AddAppServices(_configuration);
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    name: CorsPolicy,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
+            });
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
@@ -58,7 +53,6 @@ namespace BlazingChatter.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseMigrationsEndPoint();
                 app.UseWebAssemblyDebugging();
             }
             else
@@ -72,8 +66,8 @@ namespace BlazingChatter.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseCors(CorsPolicy);
 
-            app.UseIdentityServer();
             app.UseAuthentication();
             app.UseAuthorization();
 

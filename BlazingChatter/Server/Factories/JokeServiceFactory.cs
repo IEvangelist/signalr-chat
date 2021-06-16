@@ -16,8 +16,8 @@ namespace BlazingChatter.Factories
         IJokeService IJokeServiceFactory.Get(JokeType type) =>
             type switch
             {
-                JokeType.Dad => _jokeServices.SingleOrDefault(svc => svc is DadJokeService),
-                JokeType.ChuckNorris => _jokeServices.SingleOrDefault(svc => svc is ChuckNorrisJokeService),
+                JokeType.Dad => _jokeServices.OfType<DadJokeService>().SingleOrDefault(),
+                JokeType.ChuckNorris => _jokeServices.OfType<ChuckNorrisJokeService>().SingleOrDefault(),
 
                 _ => throw new ArgumentException("This is not funny, no jokes for you...", nameof(type))
             };

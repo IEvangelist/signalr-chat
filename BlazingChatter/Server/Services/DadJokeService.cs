@@ -13,7 +13,7 @@ namespace BlazingChatter.Services
 
         string IJokeService.Actor => "\"Dad\" Joke Bot";
 
-        async ValueTask<string> IJokeService.GetJokeAsync() =>
-            await _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
+        Task<string> IJokeService.GetJokeAsync() =>
+            _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
     }
 }

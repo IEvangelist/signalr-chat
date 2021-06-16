@@ -15,7 +15,7 @@ namespace BlazingChatter.Services
 
         string IJokeService.Actor => "\"Chuck Norris\" Joke Bot";
 
-        async ValueTask<string> IJokeService.GetJokeAsync()
+        async Task<string> IJokeService.GetJokeAsync()
         {
             var content = await _httpClient.GetStringAsync("http://api.icndb.com/jokes/random?limitTo=[nerdy]");
             var result = content.FromJson<JokeApiResponse>();

@@ -6,6 +6,6 @@ namespace BlazingChatter.Services
     {
         string Actor { get; }
 
-        ValueTask<string> GetJokeAsync();
+        Task<string> GetJokeAsync();
     }
 }

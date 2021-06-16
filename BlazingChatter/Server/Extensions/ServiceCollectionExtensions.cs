@@ -3,8 +3,10 @@ using BlazingChatter.Factories;
 using BlazingChatter.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web;
 using System.Security.Claims;
 
 namespace BlazingChatter.Server.Extensions
@@ -15,30 +17,40 @@ namespace BlazingChatter.Server.Extensions
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.AddAuthentication(
-                    options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie()
-                .AddTwitter(
-                    options =>
-                    {
-                        configuration.GetSection("Authentication:Twitter").Bind(options);
-                        options.SaveTokens = true;
-                    })
-                .AddGoogle(
-                    options =>
-                    {
-                        options.ClientId = configuration["Authentication:Google:ClientId"];
-                        options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-                        options.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
-                        options.ClaimActions.Clear();
-                        options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-                        options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-                        options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-                        options.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
-                        options.ClaimActions.MapJsonKey("urn:google:profile", "link");
-                        options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-                        options.SaveTokens = true;
-                    });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAdB2C"));
+
+            services.Configure<JwtBearerOptions>(
+                JwtBearerDefaults.AuthenticationScheme,
+                options =>
+                {
+                    options.TokenValidationParameters.NameClaimType = "name";
+                });
+
+            //services.AddAuthentication(
+            //        options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme)
+            //    .AddCookie()
+            //    .AddTwitter(
+            //        options =>
+            //        {
+            //            configuration.GetSection("Authentication:Twitter").Bind(options);
+            //            options.SaveTokens = true;
+            //        })
+            //    .AddGoogle(
+            //        options =>
+            //        {
+            //            options.ClientId = configuration["Authentication:Google:ClientId"];
+            //            options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+            //            options.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
+            //            options.ClaimActions.Clear();
+            //            options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+            //            options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+            //            options.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+            //            options.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+            //            options.ClaimActions.MapJsonKey("urn:google:profile", "link");
+            //            options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+            //            options.SaveTokens = true;
+            //        });
 
             return services;
         }

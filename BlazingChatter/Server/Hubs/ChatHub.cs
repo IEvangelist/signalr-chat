@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using BlazingChatter.Services;
 using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web.Resource;
 
 namespace BlazingChatter.Hubs
 {
-    [Authorize(AuthenticationSchemes = "Identity.Application")]
+    [Authorize, RequiredScope(new[] { "user_chat" })]
     public class ChatHub : Hub<IChatClient>
     {
         readonly ICommandSignalService _commandSignal;
