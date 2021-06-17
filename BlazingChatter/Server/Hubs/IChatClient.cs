@@ -12,5 +12,7 @@ namespace BlazingChatter.Hubs
         Task UserTyping(ActorAction action);
 
         Task MessageReceived(ActorMessage message);
+
+        Task CommandSignalReceived(ActorCommand command);
     }
 }

@@ -1,13 +1,10 @@
 ﻿using BlazingChatter.Bots;
 using BlazingChatter.Factories;
 using BlazingChatter.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
-using System.Security.Claims;
 
 namespace BlazingChatter.Server.Extensions
 {

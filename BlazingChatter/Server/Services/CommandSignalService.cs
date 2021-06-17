@@ -3,6 +3,7 @@ using BlazingChatter.Enums;
 using BlazingChatter.Records;
 using System.Threading;
 using System.Threading.Tasks;
+using BlazingChatter.Shared;
 
 namespace BlazingChatter.Services
 {
@@ -13,10 +14,12 @@ namespace BlazingChatter.Services
         BotCommand _activeCommand = BotCommand.None;
         string _lang = "en";
 
-        bool ICommandSignalService.IsRecognizedCommand(string message)
+        bool ICommandSignalService.IsRecognizedCommand(
+            string user, string message, out ActorCommand? actorCommand)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
+                actorCommand = null;
                 return false;
             }
 
@@ -46,6 +49,9 @@ namespace BlazingChatter.Services
             {
                 _signal.Set();
             }
+
+            actorCommand = new ActorCommand(
+                user, message, Command: (_activeJokeType, _activeCommand, _lang));
 
             return isRecognized;
         }

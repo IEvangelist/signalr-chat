@@ -25,7 +25,7 @@ namespace BlazingChatter.Hubs
 <br> <strong>Notes:</strong>
 <br> &nbsp;Anyone can command these and they are shared for all. Type ""stop"" to issue a global stop command. Finally, mix and match single or continous joke(s), joke types and locales...";
 
-        string Username => Context.User.Identity.Name;
+        string Username => Context?.User?.Identity?.Name ?? "Unknown";
 
         public ChatHub(ICommandSignalService commandSignal) => _commandSignal = commandSignal;
 
@@ -38,13 +38,15 @@ namespace BlazingChatter.Hubs
             await Clients.Others.UserLoggedOn(new Actor(Username));
         }
 
-        public override async Task OnDisconnectedAsync(Exception ex)
+        public override async Task OnDisconnectedAsync(Exception? ex)
              => await Clients.Others.UserLoggedOff(new Actor(Username));
 
-        public async Task PostMessage(string message, string id = null)
+        public async Task PostMessage(string message, string id = null!)
         {
-            if (_commandSignal.IsRecognizedCommand(message))
+            if (_commandSignal.IsRecognizedCommand(Username, message, out var command) &&
+                command is not null)
             {
+                await Clients.Caller.CommandSignalReceived(command);
                 return;
             }
 

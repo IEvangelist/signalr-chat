@@ -38,6 +38,8 @@ namespace BlazingChatter.Client.Pages
         string _message;
         bool _isTyping;
 
+        ActorCommand _lastCommand;
+
         ElementReference _messageInput;
         List<SpeechSynthesisVoice> _voices;
         string _voice = "Auto";
@@ -77,7 +79,8 @@ namespace BlazingChatter.Client.Pages
 
             _hubRegistrations.Add(_hubConnection.OnMessageReceived(OnMessageReceivedAsync));
             _hubRegistrations.Add(_hubConnection.OnUserTyping(OnUserTypingAsync));
-
+            _hubRegistrations.Add(
+                _hubConnection.OnCommandSignalReceived(OnCommandSignalReceived));
             _hubRegistrations.Add(_hubConnection.OnUserLoggedOn(
                 actor => JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on...")));
             _hubRegistrations.Add(_hubConnection.OnUserLoggedOff(
@@ -89,6 +92,8 @@ namespace BlazingChatter.Client.Pages
             await UpdateClientVoices(
                 await JavaScript.GetClientVoices(this));
         }
+
+        void OnCommandSignalReceived(ActorCommand command) => _lastCommand = command;
 
         async ValueTask<string> GetAccessTokenValueAsync()
         {
@@ -141,6 +146,11 @@ namespace BlazingChatter.Client.Pages
             if (args is { Key: "Enter" } and { Code: "Enter" })
             {
                 await SendMessage();
+            }
+
+            if (args is { Key: "ArrowUp" } && _lastCommand is not null)
+            {
+                _message = _lastCommand.OriginalText;
             }
         }
 

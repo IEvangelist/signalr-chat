@@ -22,5 +22,9 @@ namespace BlazingChatter.Client.Extensions
         public static IDisposable OnUserTyping(
             this HubConnection connection, Func<ActorAction, Task> handler) =>
             connection.On("UserTyping", handler);
+
+        public static IDisposable OnCommandSignalReceived(
+            this HubConnection connection, Action<ActorCommand> handler) =>
+            connection.On("CommandSignalReceived", handler);
     }
 }
