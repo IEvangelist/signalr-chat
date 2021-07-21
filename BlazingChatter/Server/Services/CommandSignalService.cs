@@ -41,8 +41,8 @@ namespace BlazingChatter.Services
                 "joke" => BotCommand.TellJoke,
                 "jokes" => BotCommand.SayJokes,
                 "stop" => BotCommand.None,
-                var _ when (isRecognized = false) == false => _activeCommand,
-                _ => _activeCommand
+                var _ when (isRecognized = false) == false => BotCommand.None,
+                _ => BotCommand.None
             };
 
             if (_activeCommand != BotCommand.None)
