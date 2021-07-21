@@ -7,6 +7,8 @@ on:
     - '**.css'
     - '**.json'
     - '**.razor'
+    - '**.html'
+    - '**.yml'
     - '**.csproj'
 env:
   AZURE_WEBAPP_NAME: blazing-chat
