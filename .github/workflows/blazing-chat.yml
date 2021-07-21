@@ -1,8 +1,13 @@
 name: Deploy App
 on:
   push:
-    branches:
-    - main
+    branches: [ main ]
+    paths:
+    - '**.cs'
+    - '**.css'
+    - '**.json'
+    - '**.razor'
+    - '**.csproj'
 env:
   AZURE_WEBAPP_NAME: blazing-chat
   AZURE_WEBAPP_PACKAGE_PATH: BlazingChatter\Server/publish

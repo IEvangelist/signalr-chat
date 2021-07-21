@@ -12,6 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{06891C00-7944-4029-836B-DA118A92F027}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\blazing-chat.yml = .github\workflows\blazing-chat.yml
+		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global
