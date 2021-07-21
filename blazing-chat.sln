@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingChatter.Shared", "Bl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{06891C00-7944-4029-836B-DA118A92F027}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\blazor-chat.yml = .github\workflows\blazor-chat.yml
+		.github\workflows\blazing-chat.yml = .github\workflows\blazing-chat.yml
 	EndProjectSection
 EndProject
 Global
