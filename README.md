@@ -2,7 +2,7 @@
 
 [![Deploy App](https://github.com/IEvangelist/signalr-chat/actions/workflows/blazing-chat.yml/badge.svg)](https://github.com/IEvangelist/signalr-chat/actions/workflows/blazing-chat.yml)
 
-💯 [Demo App](https://blazing-chat.azurewebsites.net)
+## 💯 [Demo App](https://blazing-chat.azurewebsites.net)
 
 ## Run locally
 
