@@ -8,7 +8,7 @@
 
 To run locally, you'll need to have several environment variables created. The `configuration` object is expecting a value that doesn't exist. For the translator specifically, you'll need to create an Azure account, and corresponding Azure resource for the translator. There is a free tier, you can sign up here:
 
-https://docs.microsoft.com/azure/cognitive-services/translator/translator-how-to-signup?wt.mc_id=dapine
+[Azure Translator Docs: Create a Translator resource](https://docs.microsoft.com/azure/cognitive-services/translator/translator-how-to-signup?wt.mc_id=dapine)
 
 #### Environment Variables
 
