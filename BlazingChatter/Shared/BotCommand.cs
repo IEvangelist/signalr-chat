@@ -1,9 +1,8 @@
-﻿namespace BlazingChatter.Enums
+﻿namespace BlazingChatter.Enums;
+
+public enum BotCommand
 {
-    public enum BotCommand
-    {
-        None,
-        TellJoke,
-        SayJokes
-    };
-}
+    None,
+    TellJoke,
+    SayJokes
+};

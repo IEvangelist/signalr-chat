@@ -1,22 +1,21 @@
-﻿namespace BlazingChatter.Records
-{
-    public record TranslationApiResponse(
-        DetectedLanguage DetectedLanguage,
-        TextResult SourceText,
-        Translation[] Translations);
+﻿namespace BlazingChatter.Records;
 
-    public record DetectedLanguage(string Language, float Score);
+public record TranslationApiResponse(
+    DetectedLanguage DetectedLanguage,
+    TextResult SourceText,
+    Translation[] Translations);
 
-    public record TextResult(string Text, string Script);
+public record DetectedLanguage(string Language, float Score);
 
-    public record Translation(
-        string Text,
-        TextResult Transliteration,
-        string To,
-        Alignment Alignment,
-        SentenceLength SentLen);
+public record TextResult(string Text, string Script);
 
-    public record Alignment(string Proj);
+public record Translation(
+    string Text,
+    TextResult Transliteration,
+    string To,
+    Alignment Alignment,
+    SentenceLength SentLen);
 
-    public record SentenceLength(int[] SrcSentLen, int[] TransSentLen);
-}
+public record Alignment(string Proj);
+
+public record SentenceLength(int[] SrcSentLen, int[] TransSentLen);

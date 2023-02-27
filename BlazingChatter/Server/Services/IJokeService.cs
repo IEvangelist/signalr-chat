@@ -1,11 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿namespace BlazingChatter.Services;
 
-namespace BlazingChatter.Services
+public interface IJokeService
 {
-    public interface IJokeService
-    {
-        string Actor { get; }
+    string Actor { get; }
 
-        Task<string> GetJokeAsync();
-    }
+    ValueTask<string> GetJokeAsync();
 }

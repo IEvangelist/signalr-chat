@@ -1,16 +1,13 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using BlazingChatter.Records;
+﻿using BlazingChatter.Records;
 using BlazingChatter.Shared;
 
-namespace BlazingChatter.Services
+namespace BlazingChatter.Services;
+
+public interface ICommandSignalService
 {
-    public interface ICommandSignalService
-    {
-        bool IsRecognizedCommand(string user, string message, out ActorCommand? actorCommand);
+    bool IsRecognizedCommand(string user, string message, out ActorCommand? actorCommand);
 
-        void Reset(bool isSet);
+    void Reset(bool isSet);
 
-        Task<Command> WaitCommandAsync(CancellationToken cancellationToken);
-    }
+    ValueTask<Command> WaitCommandAsync(CancellationToken cancellationToken);
 }

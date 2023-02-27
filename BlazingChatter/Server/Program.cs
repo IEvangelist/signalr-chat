@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using BlazingChatter.Server;
+﻿using BlazingChatter.Server;
 
 await Host.CreateDefaultBuilder(args)
     .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())

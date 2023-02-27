@@ -1,4 +1,3 @@
-﻿namespace BlazingChatter.Shared
-{
-    public record Actor(string User);
-}
+﻿namespace BlazingChatter.Shared;
+
+public record Actor(string User);

@@ -4,8 +4,8 @@
     <div class="pb-lg-4 chat-list">
         <transition-group name="list" tag="ul" class="chat-messages">
             @foreach (var (id, message) in _messages)
-            {
-                <li id="@message.Id" class="@(message.IsGreeting ? "greeting" : "")">
+        {
+            <li id="@message.Id" class="@(message.IsGreeting ? "greeting" : "")">
                     <div class="gutter pr-lg-2 text-muted">@message.User</div>
                     <div class="arrow-container">
                         <span class="arrow arrow2"></span>
@@ -14,20 +14,20 @@
                     <div class="message pl-lg-2 @(OwnsMessage(message.User) ? "canEdit" : "")"
                          @onclick="@(async () => await StartEdit(message))">
                         @{
-                            MarkupString messageMarkup = new(message.Text);
-                            <span>
+                        MarkupString messageMarkup = new(message.Text);
+                        <span>
                                 @messageMarkup
                             </span>
-                            @if (message.IsEdit)
-                            {
-                                <span class="pl-2 text-muted">
+                        @if (message.IsEdit)
+                        {
+                            <span class="pl-2 text-muted">
                                     <span class="badge badge-secondary">edited</span>
                                 </span>
-                            }
                         }
+                    }
                     </div>
                 </li>
-            }
+        }
         </transition-group>
     </div>
 
@@ -47,18 +47,18 @@
             <div class="form-group col-lg-2">
                 <div class="emoji float-right">
                     @foreach (var emoji in new[] { "🤣", "🤬", "🤘" })
-                    {
-                        <span @onclick="@(() => AppendToMessage(emoji))">
+                {
+                    <span @onclick="@(() => AppendToMessage(emoji))">
                             @emoji
                         </span>
-                    }
+                }
                     <span style="padding-left: 20px" data-toggle="modal" data-target='#settingsModal'>⚙️</span>
                 </div>
             </div>
         </div>
         <div class="form-row">
             @{
-                static string UsersTypingText(string[] usersTyping) => usersTyping?.Length switch
+                static string UsersTypingText(string[]? usersTyping) => usersTyping?.Length switch
                 {
                     0 => "&nbsp;",
                     1 => $"💬 <strong>{usersTyping[0]}</strong> is typing...",
@@ -71,7 +71,6 @@
                     @isTypingMarkup
                 </span>
             }
-
         </div>
     </section>
 
@@ -88,31 +87,31 @@
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="range">Voice speed: @_voiceSpeed</label>
+                            <label for="range">Voice speed: @VoiceSpeed</label>
                             <input type="range" min="@_voiceSpeeds.Min()" max="@_voiceSpeeds.Max()"
                                    step=".25" class="form-control-range" id="range" list="speeds"
-                                   value="@_voiceSpeed"
-                                   @onchange="(args => _voiceSpeed = double.TryParse(args.Value.ToString(), out var speed) ? speed : 1)">
+                                   value="@VoiceSpeed"
+                                   @onchange="(args => VoiceSpeed = double.TryParse(args.Value?.ToString(), out var speed) ? speed : 1)">
                             <datalist id="speeds">
-                                @foreach (var speed in _voiceSpeeds)
-                                {
-                                    <option value="@speed">speed</option>
-                                }
+                            @foreach (var speed in _voiceSpeeds)
+                            {
+                                <option value="@speed">speed</option>
+                            }
                             </datalist>
                         </div>
                         <div class="form-group">
                             <label for="voices">Default voice</label>
-                            <select class="form-control" id="voices" @bind="@_voice">
+                            <select class="form-control" id="voices" @bind="@Voice">
                                 <option selected>Auto</option>
-                                @if (_voices is { Count: > 0 })
+                            @if (_voices is { Length: > 0 })
+                            {
+                                @foreach (var voice in _voices)
                                 {
-                                    @foreach (var voice in _voices)
-                                    {
-                                        <option selected="@voice.Default" value="@voice.Name">
-                                            @voice.Name
-                                        </option>
-                                    }
+                                    <option selected="@voice.Default" value="@voice.Name">
+                                        @voice.Name
+                                    </option>
                                 }
+                            }
                             </select>
                         </div>
                     </form>

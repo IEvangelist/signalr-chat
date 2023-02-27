@@ -1,83 +1,73 @@
+using System.Net.Mime;
 using BlazingChatter.Hubs;
 using BlazingChatter.Server.Extensions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Linq;
-using System.Net.Mime;
 
-namespace BlazingChatter.Server
+namespace BlazingChatter.Server;
+
+public class Startup
 {
-    public class Startup
+    const string CorsPolicy = nameof(CorsPolicy);
+
+    readonly IConfiguration _configuration;
+
+    public Startup(IConfiguration configuration) => _configuration = configuration;
+
+    public void ConfigureServices(IServiceCollection services)
     {
-        const string CorsPolicy = nameof(CorsPolicy);
+        services.AddResponseCompression(
+            options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                new[] { MediaTypeNames.Application.Octet }));
 
-        readonly IConfiguration _configuration;
-
-        public Startup(IConfiguration configuration) => _configuration = configuration;
-
-        public void ConfigureServices(IServiceCollection services)
+        services.AddAppAuthentication(_configuration);
+        services.AddAppServices(_configuration);
+        services.AddCors(options =>
         {
-            services.AddResponseCompression(
-                options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { MediaTypeNames.Application.Octet }));
+            options.AddPolicy(
+                name: CorsPolicy,
+                builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+        });
 
-            services.AddAppAuthentication(_configuration);
-            services.AddAppServices(_configuration);
-            services.AddCors(options =>
-            {
-                options.AddPolicy(
-                    name: CorsPolicy,
-                    builder =>
-                    {
-                        builder.AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    });
-            });
+        services.AddControllersWithViews();
+        services.AddRazorPages();
 
-            services.AddControllersWithViews();
-            services.AddRazorPages();
+        services.AddSignalR(options => options.EnableDetailedErrors = true)
+                .AddMessagePackProtocol();
+    }
 
-            services.AddSignalR(options => options.EnableDetailedErrors = true)
-                    .AddMessagePackProtocol();
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseResponseCompression();
+
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseWebAssemblyDebugging();
+        }
+        else
+        {
+            app.UseExceptionHandler("/Error");
+            app.UseHsts();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        app.UseHttpsRedirection();
+        app.UseBlazorFrameworkFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseCors(CorsPolicy);
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseEndpoints(endpoints =>
         {
-            app.UseResponseCompression();
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseWebAssemblyDebugging();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
-
-            app.UseRouting();
-            app.UseCors(CorsPolicy);
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapRazorPages();
-                endpoints.MapControllers();
-                endpoints.MapHub<ChatHub>("/chat");
-                endpoints.MapFallbackToFile("index.html");
-            });
-        }
+            endpoints.MapRazorPages();
+            endpoints.MapControllers();
+            endpoints.MapHub<ChatHub>("/chat");
+            endpoints.MapFallbackToFile("index.html");
+        });
     }
 }

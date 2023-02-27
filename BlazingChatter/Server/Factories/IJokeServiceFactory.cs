@@ -1,10 +1,9 @@
 ﻿using BlazingChatter.Enums;
 using BlazingChatter.Services;
 
-namespace BlazingChatter.Factories
+namespace BlazingChatter.Factories;
+
+public interface IJokeServiceFactory
 {
-    public interface IJokeServiceFactory
-    {
-        IJokeService Get(JokeType type);
-    }
+    IJokeService Get(JokeType type);
 }

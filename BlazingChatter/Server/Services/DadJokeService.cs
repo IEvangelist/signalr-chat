@@ -1,19 +1,15 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
+﻿namespace BlazingChatter.Services;
 
-namespace BlazingChatter.Services
+internal sealed class DadJokeService : IJokeService
 {
-    public class DadJokeService : IJokeService
-    {
-        readonly HttpClient _httpClient;
+    readonly HttpClient _httpClient;
 
-        public DadJokeService(
-            IHttpClientFactory httpClientFactory) =>
-            _httpClient = httpClientFactory.CreateClient(nameof(DadJokeService));
+    public DadJokeService(
+        IHttpClientFactory httpClientFactory) =>
+        _httpClient = httpClientFactory.CreateClient(nameof(DadJokeService));
 
-        string IJokeService.Actor => "\"Dad\" Joke Bot";
+    string IJokeService.Actor => "\"Dad\" Joke Bot";
 
-        Task<string> IJokeService.GetJokeAsync() =>
-            _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
-    }
+    async ValueTask<string> IJokeService.GetJokeAsync() =>
+        await _httpClient.GetStringAsync("https://icanhazdadjoke.com/");
 }

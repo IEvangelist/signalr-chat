@@ -1,18 +1,16 @@
 ﻿using BlazingChatter.Shared;
-using System.Threading.Tasks;
 
-namespace BlazingChatter.Hubs
+namespace BlazingChatter.Hubs;
+
+public interface IChatClient
 {
-    public interface IChatClient
-    {
-        Task UserLoggedOn(Actor actor);
+    Task UserLoggedOn(Actor actor);
 
-        Task UserLoggedOff(Actor actor);
+    Task UserLoggedOff(Actor actor);
 
-        Task UserTyping(ActorAction action);
+    Task UserTyping(ActorAction action);
 
-        Task MessageReceived(ActorMessage message);
+    Task MessageReceived(ActorMessage message);
 
-        Task CommandSignalReceived(ActorCommand command);
-    }
+    Task CommandSignalReceived(ActorCommand command);
 }

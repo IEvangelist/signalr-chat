@@ -1,8 +1,7 @@
-﻿namespace BlazingChatter.Enums
+﻿namespace BlazingChatter.Enums;
+
+public enum JokeType
 {
-    public enum JokeType
-    {
-        Dad,
-        ChuckNorris
-    };
-}
+    Dad,
+    ChuckNorris
+};
