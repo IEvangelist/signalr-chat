@@ -47,6 +47,7 @@ public sealed partial class ChatRoom : IAsyncDisposable
     ActorMessage? _lastMessage;
     bool _isTyping;
     bool _showSettings;
+    bool _scrollToBottomPending;
 
     ActorCommand? _lastCommand;
 
@@ -234,6 +235,15 @@ public sealed partial class ChatRoom : IAsyncDisposable
     void OnCommandSignalReceived(ActorCommand command) =>
         (_lastCommand, _lastMessage) = (command, null);
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_scrollToBottomPending)
+        {
+            _scrollToBottomPending = false;
+            await JavaScript.ScrollToBottomAsync("message-scroll");
+        }
+    }
+
     async ValueTask<string?> GetAccessTokenValueAsync()
     {
         var result = await TokenProvider.RequestAccessToken();
@@ -278,8 +288,7 @@ public sealed partial class ChatRoom : IAsyncDisposable
                     });
                 }
 
-                await JavaScript.ScrollToBottomAsync("message-scroll");
-
+                _scrollToBottomPending = true;
                 StateHasChanged();
             });
 
@@ -334,6 +343,13 @@ public sealed partial class ChatRoom : IAsyncDisposable
         _debounceTimer.Start();
 
         await SetIsTyping(true);
+    }
+
+    async Task OnInput(ChangeEventArgs args)
+    {
+        _message = args.Value?.ToString();
+
+        await InitiateDebounceUserIsTyping();
     }
 
     Task SetIsTyping(bool isTyping)

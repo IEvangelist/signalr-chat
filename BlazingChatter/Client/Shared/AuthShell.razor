@@ -1,0 +1,33 @@
+@* Centered, branded card used for auth transition/landing states. *@
+
+<div class="chat-ambient flex h-full items-center justify-center px-4 py-10">
+    <div class="w-full max-w-md rounded-2xl border border-border/60 bg-card/70 p-8 text-center shadow-xl backdrop-blur-sm">
+        <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl @IconWrapClass">
+            <LucideIcon Name="@Icon" CssClass="@($"h-7 w-7 {(Spin ? "animate-spin" : "")}")" />
+        </div>
+        <h1 class="text-xl font-semibold tracking-tight">@Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Subtitle))
+        {
+            <p class="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">@Subtitle</p>
+        }
+        @if (Actions is not null)
+        {
+            <div class="mt-6 flex flex-col items-center gap-3">
+                @Actions
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required string Icon { get; set; }
+    [Parameter, EditorRequired] public required string Title { get; set; }
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public bool Spin { get; set; }
+    [Parameter] public bool Danger { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+
+    string IconWrapClass => Danger
+        ? "bg-destructive/10 text-destructive"
+        : "bg-primary/10 text-primary";
+}

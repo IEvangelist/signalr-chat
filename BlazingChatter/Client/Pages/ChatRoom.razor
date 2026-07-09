@@ -1,5 +1,5 @@
 <div class="chat-ambient flex h-full flex-col">
-    <div class="mx-auto flex h-full w-full max-w-3xl flex-col border-x border-border/60 bg-background/30 backdrop-blur-sm">
+    <div class="mx-auto flex h-full w-full max-w-5xl flex-col border-x border-border/60 bg-background/30 backdrop-blur-sm">
 
         @* Chat top bar with a persistent live-connection indicator *@
         <div class="flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-4 py-2.5">
@@ -123,7 +123,7 @@
                 <input @ref="_messageInput" type="text" autocomplete="off"
                        class="w-full bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground"
                        placeholder="@(_messageId is null ? "Type a message..." : "Edit your message...")"
-                       @bind-value="@_message" @oninput="@InitiateDebounceUserIsTyping"
+                       value="@_message" @oninput="OnInput"
                        @onkeyup="@(args => OnKeyUp(args))" />
 
                 <div class="flex items-center justify-between gap-2 px-0.5 pt-1">

@@ -1,5 +1,39 @@
 ﻿@page "/"
 
 <AuthorizeView>
-    <ChatRoom User="@context.User" />
+    <Authorized>
+        <ChatRoom User="@context.User" />
+    </Authorized>
+    <NotAuthorized>
+        <div class="chat-ambient flex h-full items-center justify-center px-4 py-10">
+            <div class="w-full max-w-lg text-center">
+                <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm">
+                    <LucideIcon Name="messages-square" CssClass="h-8 w-8" />
+                </div>
+                <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Real-time chat, live.</h1>
+                <p class="mx-auto mt-3 max-w-md text-muted-foreground">
+                    Sign in to join the room, command joke bots inline, and watch messages
+                    stream in over SignalR — with a live connection indicator and spoken replies.
+                </p>
+                <div class="mt-7 flex justify-center">
+                    <a href="authentication/login"
+                       class="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground no-underline shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]">
+                        <LucideIcon Name="log-in" CssClass="h-4 w-4" />
+                        Log in to start chatting
+                    </a>
+                </div>
+                <div class="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <span class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/50 px-3 py-1 backdrop-blur-sm">
+                        <LucideIcon Name="zap" CssClass="h-3.5 w-3.5 text-primary" /> Live connection status
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/50 px-3 py-1 backdrop-blur-sm">
+                        <LucideIcon Name="bot" CssClass="h-3.5 w-3.5 text-primary" /> Joke chatbots
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/50 px-3 py-1 backdrop-blur-sm">
+                        <LucideIcon Name="volume-2" CssClass="h-3.5 w-3.5 text-primary" /> Natural voices
+                    </span>
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
 </AuthorizeView>

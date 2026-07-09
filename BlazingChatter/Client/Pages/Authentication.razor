@@ -1,8 +1,68 @@
 ﻿@page "/authentication/{action}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
-<RemoteAuthenticatorView Action="@Action" />
+<RemoteAuthenticatorView Action="@Action">
+    <LoggingIn>
+        <AuthShell Icon="loader" Spin="true"
+                   Title="Redirecting to sign in…"
+                   Subtitle="Taking you to the secure login." />
+    </LoggingIn>
+    <CompletingLoggingIn>
+        <AuthShell Icon="loader" Spin="true"
+                   Title="Finishing sign in…"
+                   Subtitle="Hang tight while we complete authentication." />
+    </CompletingLoggingIn>
+    <LogInFailed>
+        <AuthShell Icon="wifi-off" Danger="true"
+                   Title="Sign in failed"
+                   Subtitle="@context">
+            <Actions>
+                <a href="authentication/login" class="@PrimaryButton">
+                    <LucideIcon Name="log-in" CssClass="h-4 w-4" /> Try again
+                </a>
+            </Actions>
+        </AuthShell>
+    </LogInFailed>
+    <LogOut>
+        <AuthShell Icon="loader" Spin="true"
+                   Title="Signing you out…"
+                   Subtitle="One moment while we end your session." />
+    </LogOut>
+    <CompletingLogOut>
+        <AuthShell Icon="loader" Spin="true"
+                   Title="Signing you out…"
+                   Subtitle="One moment while we end your session." />
+    </CompletingLogOut>
+    <LogOutSucceeded>
+        <AuthShell Icon="log-out"
+                   Title="You're signed out"
+                   Subtitle="Thanks for chatting. See you next time!">
+            <Actions>
+                <a href="authentication/login" class="@PrimaryButton">
+                    <LucideIcon Name="log-in" CssClass="h-4 w-4" /> Log back in
+                </a>
+            </Actions>
+        </AuthShell>
+    </LogOutSucceeded>
+    <LogOutFailed>
+        <AuthShell Icon="wifi-off" Danger="true"
+                   Title="Sign out failed"
+                   Subtitle="@context">
+            <Actions>
+                <a href="" class="@SecondaryButton">
+                    <LucideIcon Name="house" CssClass="h-4 w-4" /> Back to chat
+                </a>
+            </Actions>
+        </AuthShell>
+    </LogOutFailed>
+</RemoteAuthenticatorView>
 
 @code{
     [Parameter, EditorRequired] public required string Action { get; set; }
+
+    const string PrimaryButton =
+        "inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground no-underline shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]";
+
+    const string SecondaryButton =
+        "inline-flex h-11 items-center gap-2 rounded-lg border border-border px-5 text-sm font-medium text-foreground no-underline transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]";
 }
