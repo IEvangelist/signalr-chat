@@ -8,6 +8,9 @@
     <meta name="description" content="A real time chat built with Blazor WebAssembly, SignalR and .NET Aspire." />
     <meta name="theme-color" content="#7c3aed" />
     <base href="/web/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script>
         (function () {
             try {
@@ -53,7 +56,7 @@
     </div>
 
     <script src="_content/Blazor.SpeechSynthesis.WebAssembly/blazorators.speechSynthesis.g.js"></script>
-    <script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
+    <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
     <script src="app.js"></script>

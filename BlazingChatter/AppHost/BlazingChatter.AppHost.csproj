@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.Blazor" Version="13.4.6-preview.1.26319.6" />
+    <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.4.6-preview.1.26319.6" />
   </ItemGroup>
 
   <ItemGroup>

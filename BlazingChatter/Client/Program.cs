@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BlazingChatter.Client;
 using BlazingChatter.Client.Services;
 
-const string api_scope =
-    "https://dotnetdocs.onmicrosoft.com/50e82891-dead-4d8c-b301-a70ec41a8528/user_chat";
-
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 
@@ -20,12 +17,16 @@ var apiBaseAddress =
 
 builder.Services.AddSingleton(new ApiEndpoint(apiBaseAddress));
 
-builder.Services.AddMsalAuthentication(options =>
+// OpenID Connect against the self-contained Keycloak realm. The authority/client id come
+// from configuration (wwwroot/appsettings.json). Authorization code flow with PKCE is used
+// (public client), and "preferred_username" is projected as the user's name so it matches
+// the server's identity - keeping message ownership checks consistent across client/server.
+builder.Services.AddOidcAuthentication(options =>
 {
-    builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
+    builder.Configuration.Bind("Oidc", options.ProviderOptions);
 
-    options.ProviderOptions.DefaultAccessTokenScopes.Add(api_scope);
-    options.ProviderOptions.LoginMode = "redirect";
+    options.ProviderOptions.ResponseType = "code";
+    options.UserOptions.NameClaim = "preferred_username";
 });
 
 builder.Services.AddLocalStorageServices();

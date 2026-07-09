@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using BlazingChatter.Services;
 using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web.Resource;
 
 namespace BlazingChatter.Hubs;
 
-[Authorize, RequiredScope(new[] { "user_chat" })]
+[Authorize]
 public sealed class ChatHub : Hub<IChatClient>
 {
     readonly ICommandSignalService _commandSignal;

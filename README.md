@@ -4,7 +4,7 @@
 
 A real-time chat sample built on **ASP.NET Core SignalR** and **Blazor WebAssembly**, running on **.NET 10** and orchestrated with **.NET Aspire**. Messages are broadcast live to everyone in the room, joke chatbots can be commanded inline, and replies can be translated and spoken aloud.
 
-The UI is a **shadcn-inspired design system** built with **Tailwind CSS v4**: dark-mode first with a light option, a single .NET-violet accent over zinc neutrals, message bubbles, avatars, live connection status, an emoji composer, and a voice-settings dialog.
+The UI is a **shadcn-inspired design system** built with **Tailwind CSS v4**: dark-mode first with a light option, a single .NET-violet accent over zinc neutrals, animated message bubbles, avatars, a persistent live-connection status pill, an emoji composer, and a voice-settings dialog that prefers natural (non-robotic) voices.
 
 ## Architecture
 
@@ -85,17 +85,27 @@ dotnet user-secrets set "TranslateTextOptions:Endpoint" "https://api.cognitive.m
 dotnet user-secrets set "TranslateTextOptions:Region" "<your-region>"
 ```
 
-### Authentication (Azure AD B2C)
+### Authentication (Keycloak)
 
-Sign-in uses Azure AD B2C via MSAL. The sample ships with the `dotnetdocs` B2C tenant settings in `appsettings.json` on both the `api` and `web` projects. To use your own tenant, update those values.
+Sign-in uses **Keycloak** (OpenID Connect + PKCE), run as a container and orchestrated by the AppHost. On startup the AppHost imports the `blazingchatter` realm from `BlazingChatter/AppHost/Realms/blazingchatter-realm.json`, which provisions:
 
-Because the client is served under `/web`, the MSAL redirect URI is:
+- A public PKCE SPA client, `blazingchatter-web`, with redirect/web-origin URIs for the gateway (`https://localhost:7443/web/*`).
+- An audience mapper that stamps `blazingchatter-api` into access tokens so the `api` project can validate them.
+- A ready-to-use development user:
+
+  | Username | Password |
+  |----------|----------|
+  | `tester` | `Password123!` |
+
+No external tenant or secret is required for local development — `aspire run` starts Keycloak, imports the realm, and wires the `web` and `api` projects to it automatically. The client's OIDC authority and the API's token-validation settings live in each project's `appsettings.json`; point them at your own Keycloak realm to use a different identity provider.
+
+Because the client is served under `/web`, the OIDC redirect URI is:
 
 ```
 {origin}/web/authentication/login-callback
 ```
 
-Register that reply URL in your B2C app registration, otherwise sign-in will fail.
+That reply URL is already registered in the imported realm.
 
 ## Using the chat
 

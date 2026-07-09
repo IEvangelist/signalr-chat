@@ -26,6 +26,11 @@ public sealed partial class ChatRoom : IAsyncDisposable
     readonly HashSet<Actor> _usersTyping = new();
     readonly HashSet<IDisposable> _hubRegistrations = new();
     readonly string[] _quickEmoji = { "🤣", "🤬", "🤘" };
+    readonly Dictionary<string, DateTime> _messageTimes =
+        new(StringComparer.OrdinalIgnoreCase);
+    static readonly string[] s_naturalVoiceHints =
+        { "natural", "neural", "online", "google", "premium", "enhanced" };
+    static readonly string[] s_roboticVoiceHints = { "espeak", "desktop" };
     readonly List<double> _voiceSpeeds =
         Enumerable.Range(0, 12).Select(i => (i + 1) * .25).ToList();
     readonly DebounceTimer _debounceTimer = new()
@@ -105,6 +110,51 @@ public sealed partial class ChatRoom : IAsyncDisposable
         ConnectionStatus.Offline => "bg-destructive",
         _ => "bg-primary"
     };
+
+    string StatusPillClass => _connection switch
+    {
+        ConnectionStatus.Live => "border-success/30 bg-success/10 text-success",
+        ConnectionStatus.Offline => "border-destructive/30 bg-destructive/10 text-destructive",
+        _ => "border-primary/30 bg-primary/10 text-primary"
+    };
+
+    SpeechSynthesisVoice[] NaturalVoices
+    {
+        get
+        {
+            if (_voices is not { Length: > 0 })
+            {
+                return Array.Empty<SpeechSynthesisVoice>();
+            }
+
+            var natural = _voices.Where(IsNaturalVoice)
+                .OrderBy(v => v.Lang.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(v => v.Name, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            return natural is { Length: > 0 } ? natural : _voices;
+        }
+    }
+
+    static bool IsNaturalVoice(SpeechSynthesisVoice voice)
+    {
+        if (s_roboticVoiceHints.Any(
+                hint => voice.Name.Contains(hint, StringComparison.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
+        // Remote voices are the cloud/neural ones; local voices are natural only
+        // when their name advertises it (Edge "Natural", Chrome "Google", etc.).
+        return voice.LocalService is false ||
+            s_naturalVoiceHints.Any(
+                hint => voice.Name.Contains(hint, StringComparison.OrdinalIgnoreCase));
+    }
+
+    SpeechSynthesisVoice? PickNaturalVoice(string lang) =>
+        NaturalVoices.FirstOrDefault(
+            v => v.Lang.StartsWith(lang, StringComparison.OrdinalIgnoreCase))
+        ?? NaturalVoices.FirstOrDefault();
 
     string TypingText
     {
@@ -200,11 +250,13 @@ public sealed partial class ChatRoom : IAsyncDisposable
                     _lastCommand = null;
                 }
 
+                _messageTimes.TryAdd(message.Id, DateTime.Now);
                 _messages[message.Id] = message;
                 if (message.IsChatBot && message.SayJoke)
                 {
                     var lang = message.Lang ?? "en";
-                    var voice = _voices?.FirstOrDefault(v => v.Name == Voice);
+                    var voice = _voices?.FirstOrDefault(v => v.Name == Voice)
+                        ?? PickNaturalVoice(lang);
                     if (voice is not null)
                     {
                         if (!voice.Lang.StartsWith(lang) && _voices is { Length: > 0 })
@@ -341,6 +393,11 @@ public sealed partial class ChatRoom : IAsyncDisposable
 
     static string Initial(string? user) =>
         string.IsNullOrWhiteSpace(user) ? "?" : user.Trim()[..1].ToUpperInvariant();
+
+    static string MessageInClass(bool own) => own ? "msg-in-right" : "msg-in-left";
+
+    string TimeFor(string id) =>
+        _messageTimes.TryGetValue(id, out var time) ? time.ToString("h:mm tt") : "";
 
     static string AvatarClass(ActorMessage message, bool own) =>
         own

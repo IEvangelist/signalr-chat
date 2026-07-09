@@ -118,10 +118,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Code", "Cascadia Mono", "SF Mono",
-    Menlo, Consolas, "Liberation Mono", monospace;
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "Cascadia Code", "Cascadia Mono",
+    "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
   --animate-message-in: message-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -174,16 +174,113 @@
   }
 }
 
-/* Message entrance. */
+/*
+ * Ambient backdrop for the conversation surface: a soft brand-tinted glow at the
+ * top plus a faint dot grid, so empty space reads as intentional atmosphere rather
+ * than a void. Static (transform/opacity only), pointer-events-free, both themes.
+ */
+.chat-ambient {
+  position: relative;
+  isolation: isolate;
+}
+.chat-ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      60rem 32rem at 50% -8rem,
+      hsl(var(--primary) / 0.14),
+      transparent 70%
+    ),
+    radial-gradient(
+      40rem 24rem at 85% 0%,
+      hsl(var(--primary) / 0.08),
+      transparent 65%
+    );
+}
+.chat-ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(
+    hsl(var(--muted-foreground) / 0.16) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(70% 55% at 50% 0%, #000 0%, transparent 75%);
+  opacity: 0.5;
+}
+
+/*
+ * Welcome/greeting message. The server sends preformatted HTML (br/strong/pre/code);
+ * render it as a readable briefing card instead of squashing it into a pill.
+ */
+.greeting-content {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: hsl(var(--muted-foreground));
+}
+.greeting-content strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+.greeting-content pre {
+  margin: 0.5rem 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--muted) / 0.6);
+  overflow-x: auto;
+}
+.greeting-content code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  color: hsl(var(--primary));
+  white-space: pre;
+}
+
+/* Message entrance: subtle rise + fade, with a directional lean per author. */
 @keyframes message-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    transform: translateY(10px) scale(0.985);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+@keyframes message-in-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-14px, 8px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes message-in-right {
+  from {
+    opacity: 0;
+    transform: translate3d(14px, 8px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.msg-in {
+  animation: message-in 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.msg-in-left {
+  animation: message-in-left 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.msg-in-right {
+  animation: message-in-right 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Typing indicator dots. */

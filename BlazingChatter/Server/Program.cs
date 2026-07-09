@@ -13,7 +13,7 @@ builder.Services.AddResponseCompression(
     options => options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
         [MediaTypeNames.Application.Octet]));
 
-builder.Services.AddAppAuthentication(builder.Configuration);
+builder.Services.AddAppAuthentication(builder.Environment);
 builder.Services.AddAppServices(builder.Configuration);
 
 builder.Services.AddCors(

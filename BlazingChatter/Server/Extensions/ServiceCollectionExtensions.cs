@@ -2,7 +2,6 @@
 using BlazingChatter.Factories;
 using BlazingChatter.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
 
 namespace BlazingChatter.Server.Extensions;
 
@@ -10,35 +9,48 @@ static class ServiceCollectionExtensions
 {
     internal static IServiceCollection AddAppAuthentication(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IHostEnvironment environment)
     {
+        // Validate access tokens issued by the self-contained Keycloak realm. The "keycloak"
+        // service name is resolved through Aspire service discovery to the realm's authority
+        // (http://localhost:8080/realms/blazingchatter), which is also the issuer the browser
+        // obtains tokens from - so issuer validation lines up without extra configuration.
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAdB2C"));
-
-        services.Configure<JwtBearerOptions>(
-            JwtBearerDefaults.AuthenticationScheme,
-            options =>
-            {
-                options.TokenValidationParameters.NameClaimType = "name";
-
-                // SignalR (WebSockets) can't set the Authorization header, so it passes the
-                // access token as a query-string parameter. Read it for the chat hub path.
-                options.Events = new JwtBearerEvents
+            .AddKeycloakJwtBearer(
+                serviceName: "keycloak",
+                realm: "blazingchatter",
+                options =>
                 {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["access_token"];
-                        var path = context.HttpContext.Request.Path;
-                        if (string.IsNullOrEmpty(accessToken) is false &&
-                            path.StartsWithSegments("/chat"))
-                        {
-                            context.Token = accessToken;
-                        }
+                    // The realm's audience mapper stamps this audience onto access tokens; it is
+                    // the Keycloak equivalent of the previous B2C "user_chat" scope gate.
+                    options.Audience = "blazingchatter-api";
+                    options.TokenValidationParameters.NameClaimType = "preferred_username";
 
-                        return Task.CompletedTask;
+                    // Keycloak is reached over http://localhost:8080 during local development,
+                    // so the OIDC metadata is served over HTTP rather than HTTPS.
+                    if (environment.IsDevelopment())
+                    {
+                        options.RequireHttpsMetadata = false;
                     }
-                };
-            });
+
+                    // SignalR (WebSockets) can't set the Authorization header, so it passes the
+                    // access token as a query-string parameter. Read it for the chat hub path.
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (string.IsNullOrEmpty(accessToken) is false &&
+                                path.StartsWithSegments("/chat"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
         return services;
     }
