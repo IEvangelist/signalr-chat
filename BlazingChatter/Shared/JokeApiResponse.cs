@@ -2,6 +2,8 @@
 
 public record JokeApiResponse(string Type, Value Value);
 
+public record ChuckNorrisJoke(string? Value);
+
 public class Value
 {
     public int Id { get; set; }

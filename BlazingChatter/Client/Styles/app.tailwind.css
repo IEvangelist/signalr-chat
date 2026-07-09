@@ -81,6 +81,22 @@
   --ring: 263.4 70% 60.4%;
 }
 
+/*
+ * Brand gradient stops. One accent stays the source of truth (violet), but we
+ * blend toward fuchsia + indigo for hero marks, own bubbles, and the send action
+ * so the surface reads with a little more color and depth than a flat token.
+ */
+:root {
+  --brand-1: 262 83% 58%;
+  --brand-2: 291 84% 61%;
+  --brand-3: 231 78% 60%;
+}
+.dark {
+  --brand-1: 263 72% 63%;
+  --brand-2: 291 74% 65%;
+  --brand-3: 231 76% 66%;
+}
+
 /* Map the tokens onto Tailwind's color + radius scales. */
 @theme inline {
   --color-background: hsl(var(--background));
@@ -175,9 +191,10 @@
 }
 
 /*
- * Ambient backdrop for the conversation surface: a soft brand-tinted glow at the
- * top plus a faint dot grid, so empty space reads as intentional atmosphere rather
- * than a void. Static (transform/opacity only), pointer-events-free, both themes.
+ * Ambient backdrop for the conversation surface: a slow-drifting multi-hue aurora
+ * (violet → fuchsia → indigo) layered over a two-tone dot mesh, so empty space reads
+ * as living atmosphere rather than a void. Pointer-events-free, both themes. Motion is
+ * transform/opacity only and is neutralised by the reduced-motion kill-switch below.
  */
 .chat-ambient {
   position: relative;
@@ -186,32 +203,52 @@
 .chat-ambient::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -12% -8% auto -8%;
+  height: 120%;
   z-index: -1;
   background:
     radial-gradient(
-      60rem 32rem at 50% -8rem,
-      hsl(var(--primary) / 0.14),
-      transparent 70%
+      34rem 22rem at 18% 8%,
+      hsl(var(--brand-1) / 0.20),
+      transparent 60%
     ),
     radial-gradient(
-      40rem 24rem at 85% 0%,
-      hsl(var(--primary) / 0.08),
-      transparent 65%
+      30rem 20rem at 82% 4%,
+      hsl(var(--brand-2) / 0.16),
+      transparent 60%
+    ),
+    radial-gradient(
+      40rem 26rem at 55% 28%,
+      hsl(var(--brand-3) / 0.12),
+      transparent 66%
     );
+  will-change: transform;
+  animation: aurora-drift 22s ease-in-out infinite alternate;
 }
 .chat-ambient::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(
-    hsl(var(--muted-foreground) / 0.16) 1px,
-    transparent 1px
-  );
-  background-size: 22px 22px;
-  mask-image: radial-gradient(70% 55% at 50% 0%, #000 0%, transparent 75%);
-  opacity: 0.5;
+  background-image:
+    radial-gradient(hsl(var(--muted-foreground) / 0.18) 1px, transparent 1px),
+    radial-gradient(hsl(var(--primary) / 0.14) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
+  mask-image: radial-gradient(75% 60% at 50% 0%, #000 0%, transparent 78%);
+  opacity: 0.6;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-1.5%, -1%, 0) scale(1.02) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(2.5%, 1.5%, 0) scale(1.08) rotate(0.6deg);
+  }
+  100% {
+    transform: translate3d(-0.5%, 0.5%, 0) scale(1.05) rotate(-0.4deg);
+  }
 }
 
 /*
@@ -326,6 +363,125 @@
 
 .status-ping {
   animation: status-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/*
+ * Brand gradient surfaces & text. Used for hero marks, avatars, own message
+ * bubbles, and the send action so the primary accent gains depth and warmth.
+ */
+.brand-gradient {
+  background-image: linear-gradient(
+    135deg,
+    hsl(var(--brand-1)),
+    hsl(var(--brand-2)) 52%,
+    hsl(var(--brand-3))
+  );
+}
+.brand-text-gradient {
+  background-image: linear-gradient(
+    120deg,
+    hsl(var(--brand-1)),
+    hsl(var(--brand-2))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Own message bubble: a gradient fill with a soft brand-tinted glow. */
+.bubble-own {
+  background-image: linear-gradient(
+    135deg,
+    hsl(var(--brand-1)),
+    hsl(var(--brand-3))
+  );
+  box-shadow: 0 8px 22px -10px hsl(var(--brand-1) / 0.65);
+}
+
+/* Every bubble gets a gentle hover lift for a tactile, alive feel. */
+.msg-bubble {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.msg-bubble:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px -12px hsl(var(--foreground) / 0.28);
+}
+
+/* Send action: gradient fill + glow that intensifies on hover / press. */
+.btn-send {
+  background-image: linear-gradient(
+    135deg,
+    hsl(var(--brand-1)),
+    hsl(var(--brand-2))
+  );
+  box-shadow: 0 8px 20px -8px hsl(var(--brand-1) / 0.6);
+  transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+.btn-send:not(:disabled):hover {
+  filter: brightness(1.08) saturate(1.05);
+  box-shadow: 0 10px 26px -8px hsl(var(--brand-1) / 0.75);
+}
+.btn-send:not(:disabled):active {
+  transform: translateY(1px) scale(0.97);
+}
+
+/* Avatars pop in with the message so the row assembles with a beat. */
+@keyframes avatar-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.avatar-pop {
+  animation: avatar-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* A thin shimmering brand line across the top of accent cards. */
+@keyframes accent-shimmer {
+  to {
+    background-position: 200% 0;
+  }
+}
+.accent-top {
+  position: relative;
+}
+.accent-top::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--brand-1)),
+    hsl(var(--brand-2)),
+    hsl(var(--brand-3)),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: accent-shimmer 6s linear infinite;
+}
+
+/* Soft pulsing halo behind the "live" connection pill. */
+@keyframes live-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--success) / 0);
+  }
+  50% {
+    box-shadow: 0 0 14px 1px hsl(var(--success) / 0.35);
+  }
+}
+.pill-live {
+  animation: live-glow 2.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

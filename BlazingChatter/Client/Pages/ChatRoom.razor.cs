@@ -28,6 +28,8 @@ public sealed partial class ChatRoom : IAsyncDisposable
     readonly string[] _quickEmoji = { "🤣", "🤬", "🤘" };
     readonly Dictionary<string, DateTime> _messageTimes =
         new(StringComparer.OrdinalIgnoreCase);
+    readonly Dictionary<string, DateTime> _typingSince = new();
+    static readonly TimeSpan s_typingTimeout = TimeSpan.FromSeconds(7);
     static readonly string[] s_naturalVoiceHints =
         { "natural", "neural", "online", "google", "premium", "enhanced" };
     static readonly string[] s_roboticVoiceHints = { "espeak", "desktop" };
@@ -37,6 +39,11 @@ public sealed partial class ChatRoom : IAsyncDisposable
     {
         Interval = 750,
         AutoReset = false
+    };
+    readonly DebounceTimer _typingSweeper = new()
+    {
+        Interval = 2_000,
+        AutoReset = true
     };
 
     HubConnection? _hubConnection;
@@ -54,9 +61,14 @@ public sealed partial class ChatRoom : IAsyncDisposable
     ElementReference _messageInput;
     SpeechSynthesisVoice[] _voices = Array.Empty<SpeechSynthesisVoice>();
 
-    public ChatRoom() =>
+    public ChatRoom()
+    {
         _debounceTimer.Elapsed +=
             async (sender, args) => await SetIsTyping(false);
+        _typingSweeper.Elapsed +=
+            async (sender, args) => await SweepStaleTypingAsync();
+        _typingSweeper.Start();
+    }
 
     string Voice
     {
@@ -296,12 +308,49 @@ public sealed partial class ChatRoom : IAsyncDisposable
         await InvokeAsync(() =>
         {
             var (user, isTyping) = actorAction;
-            _ = isTyping
-                ? _usersTyping.Add(new(user))
-                : _usersTyping.Remove(new(user));
+            if (isTyping)
+            {
+                _usersTyping.Add(new(user));
+                _typingSince[user] = DateTime.Now;
+            }
+            else
+            {
+                _usersTyping.Remove(new(user));
+                _typingSince.Remove(user);
+            }
 
             StateHasChanged();
         });
+
+    async Task SweepStaleTypingAsync()
+    {
+        if (_usersTyping.Count is 0)
+        {
+            return;
+        }
+
+        var now = DateTime.Now;
+        var stale = _typingSince
+            .Where(kvp => now - kvp.Value > s_typingTimeout)
+            .Select(kvp => kvp.Key)
+            .ToArray();
+
+        if (stale is { Length: 0 })
+        {
+            return;
+        }
+
+        await InvokeAsync(() =>
+        {
+            foreach (var user in stale)
+            {
+                _usersTyping.Remove(new(user));
+                _typingSince.Remove(user);
+            }
+
+            StateHasChanged();
+        });
+    }
 
     async Task OnKeyUp(KeyboardEventArgs args)
     {
@@ -417,14 +466,14 @@ public sealed partial class ChatRoom : IAsyncDisposable
 
     static string AvatarClass(ActorMessage message, bool own) =>
         own
-            ? "bg-primary text-primary-foreground"
+            ? "brand-gradient text-primary-foreground"
             : message.IsChatBot
                 ? "bg-primary/10 text-primary"
                 : "bg-muted text-muted-foreground";
 
     static string BubbleClass(ActorMessage message, bool own) =>
         own
-            ? "bg-primary text-primary-foreground"
+            ? "bubble-own text-primary-foreground"
             : message.IsChatBot
                 ? "border border-primary/25 bg-accent text-accent-foreground"
                 : "bg-muted text-foreground";
@@ -435,6 +484,12 @@ public sealed partial class ChatRoom : IAsyncDisposable
         {
             _debounceTimer.Stop();
             _debounceTimer.Dispose();
+        }
+
+        if (_typingSweeper is { })
+        {
+            _typingSweeper.Stop();
+            _typingSweeper.Dispose();
         }
 
         if (_hubRegistrations is { Count: > 0 })

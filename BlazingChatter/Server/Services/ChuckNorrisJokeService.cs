@@ -15,10 +15,19 @@ public class ChuckNorrisJokeService : IJokeService
 
     async ValueTask<string> IJokeService.GetJokeAsync()
     {
-        var content = await _httpClient.GetStringAsync(
-            "http://api.icndb.com/jokes/random?limitTo=[nerdy]");
-        var result = content.FromJson<JokeApiResponse>();
+        try
+        {
+            var content = await _httpClient.GetStringAsync(
+                "https://api.chucknorris.io/jokes/random?category=dev");
+            var result = content.FromJson<ChuckNorrisJoke>();
 
-        return result?.Value?.Joke ?? "Oops, that didn't work";
+            return result?.Value is { Length: > 0 } joke
+                ? joke
+                : "Chuck Norris is speechless right now — try again!";
+        }
+        catch (Exception)
+        {
+            return "Chuck Norris roundhouse-kicked the joke server. Try again!";
+        }
     }
 }

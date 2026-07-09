@@ -84,11 +84,19 @@ internal sealed class ChatBot : BackgroundService
         var bot = svc.Actor;
 
         await ToggleIsTypingAsync(true, bot);
-        await Task.Delay(
-            TimeSpan.FromMilliseconds(_random.Next(1_000, 3_000)), cancellationToken);
 
-        var joke = await svc.GetJokeAsync();
-        await ToggleIsTypingAsync(false, bot);
+        string joke;
+        try
+        {
+            await Task.Delay(
+                TimeSpan.FromMilliseconds(_random.Next(1_000, 3_000)), cancellationToken);
+
+            joke = await svc.GetJokeAsync();
+        }
+        finally
+        {
+            await ToggleIsTypingAsync(false, bot);
+        }
 
         _logger.LogInformation(
             "Joke Bot, processing joke (lang:{Lang}): {Joke}", lang, joke);
