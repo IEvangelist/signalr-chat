@@ -4,7 +4,29 @@
 
 A real-time chat sample built on **ASP.NET Core SignalR** and **Blazor WebAssembly**, running on **.NET 10** and orchestrated with **.NET Aspire**. Messages are broadcast live to everyone in the room, joke chatbots can be commanded inline, and replies can be translated and spoken aloud.
 
-The UI is a **shadcn-inspired design system** built with **Tailwind CSS v4**: dark-mode first with a light option, a single .NET-violet accent over zinc neutrals, animated message bubbles, avatars, a persistent live-connection status pill, an emoji composer, and a voice-settings dialog that prefers natural (non-robotic) voices.
+The UI is a **shadcn-inspired design system** built with **Tailwind CSS v4**: dark-mode first with a light option, a violet→fuchsia→indigo brand gradient over zinc neutrals, an animated aurora backdrop, gradient message bubbles and avatars, a persistent live-connection status pill, an emoji composer, and a voice-settings dialog that prefers natural (non-robotic) voices.
+
+## Screenshots
+
+> These images are theme-aware — GitHub shows the dark or light capture to match your current theme.
+
+### Sign-in landing
+
+![BlazingChatter sign-in landing (dark)](images/landing-dark.png#gh-dark-mode-only)
+![BlazingChatter sign-in landing (light)](images/landing-light.png#gh-light-mode-only)
+
+### Live chat with joke bots and inline translation
+
+The Chuck Norris joke below was requested with `joke:chucknorris:es` and translated to Spanish on the fly.
+
+![BlazingChatter live chat (dark)](images/chat-dark.png#gh-dark-mode-only)
+![BlazingChatter live chat (light)](images/chat-light.png#gh-light-mode-only)
+
+### Voice settings
+
+Spoken replies default to a natural (non-robotic) voice, with an adjustable playback speed.
+
+![BlazingChatter voice settings](images/voice-settings-dark.png)
 
 ## Architecture
 
@@ -68,9 +90,11 @@ To build without Node available (using the committed `app.css`), pass `-p:RunTai
 
 ## Configuration and secrets
 
-### Translation (optional)
+### Translation
 
-Joke translation uses Azure AI Translator. Without it, jokes are still delivered in English. Create a Translator resource ([free tier available](https://learn.microsoft.com/azure/ai-services/translator/create-translator-resource)) and supply these settings to the **`api`** project (`BlazingChatter.Server`), either as environment variables or user secrets:
+Localized jokes (e.g. `jokes:chucknorris:bg`) work **out of the box** — no key or setup required. By default the `api` project translates via the free, key-less [MyMemory](https://mymemory.translated.net/doc/spec.php) API. If translation ever fails, the joke is still delivered in its original English.
+
+For higher quality and quota, you can optionally switch to **Azure AI Translator**. Create a Translator resource ([free tier available](https://learn.microsoft.com/azure/ai-services/translator/create-translator-resource)) and supply these settings to the **`api`** project (`BlazingChatter.Server`), either as environment variables or user secrets. When both an endpoint and key are present, Azure is used automatically:
 
 | Name | Value |
 |------|-------|
