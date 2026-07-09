@@ -188,6 +188,26 @@
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
   }
+
+  /* Every interactive affordance reads as clickable. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  label[for],
+  select,
+  summary,
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"],
+  input[type="submit"],
+  input[type="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 /*
@@ -199,6 +219,12 @@
 .chat-ambient {
   position: relative;
   isolation: isolate;
+  /* A large, soft glow that trails the cursor, tinting the whole surface. */
+  background: radial-gradient(
+    36rem 36rem at var(--mx, 50%) var(--my, 18%),
+    hsl(var(--brand-2) / 0.12),
+    transparent 62%
+  );
 }
 .chat-ambient::before {
   content: "";
@@ -376,6 +402,17 @@
     hsl(var(--brand-2)) 52%,
     hsl(var(--brand-3))
   );
+  background-size: 160% 160%;
+  animation: brand-pan 9s ease-in-out infinite;
+}
+@keyframes brand-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 .brand-text-gradient {
   background-image: linear-gradient(
@@ -393,36 +430,64 @@
   background-image: linear-gradient(
     135deg,
     hsl(var(--brand-1)),
+    hsl(var(--brand-2)) 55%,
     hsl(var(--brand-3))
   );
-  box-shadow: 0 8px 22px -10px hsl(var(--brand-1) / 0.65);
+  background-size: 160% 160%;
+  animation: brand-pan 10s ease-in-out infinite;
+  box-shadow:
+    0 8px 22px -10px hsl(var(--brand-1) / 0.65),
+    inset 0 1px 0 hsl(0 0% 100% / 0.22);
 }
 
-/* Every bubble gets a gentle hover lift for a tactile, alive feel. */
+/* Every bubble gets a spring hover lift for a tactile, alive feel. */
 .msg-bubble {
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.24s ease;
 }
 .msg-bubble:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 26px -12px hsl(var(--foreground) / 0.28);
+  transform: translateY(-2px) scale(1.012);
+  box-shadow: 0 14px 30px -14px hsl(var(--foreground) / 0.34);
 }
 
-/* Send action: gradient fill + glow that intensifies on hover / press. */
+/* Send action: gradient fill + glow that intensifies on hover / press,
+ * plus a light sheen that sweeps across on hover. */
 .btn-send {
+  position: relative;
+  overflow: hidden;
   background-image: linear-gradient(
     135deg,
     hsl(var(--brand-1)),
     hsl(var(--brand-2))
   );
   box-shadow: 0 8px 20px -8px hsl(var(--brand-1) / 0.6);
-  transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  transition: filter 0.15s ease, box-shadow 0.2s ease,
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-send::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent 35%,
+    hsl(0 0% 100% / 0.4) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
 }
 .btn-send:not(:disabled):hover {
   filter: brightness(1.08) saturate(1.05);
-  box-shadow: 0 10px 26px -8px hsl(var(--brand-1) / 0.75);
+  box-shadow: 0 12px 28px -8px hsl(var(--brand-1) / 0.78);
+  transform: translateY(-2px);
+}
+.btn-send:not(:disabled):hover::before {
+  transform: translateX(130%);
+  transition: transform 0.7s ease;
 }
 .btn-send:not(:disabled):active {
-  transform: translateY(1px) scale(0.97);
+  transform: translateY(0) scale(0.96);
 }
 
 /* Avatars pop in with the message so the row assembles with a beat. */
@@ -482,6 +547,147 @@
 }
 .pill-live {
   animation: live-glow 2.4s ease-in-out infinite;
+}
+
+/*
+ * Mouse-aware highlight. A soft brand sheen tracks the cursor across any
+ * `.spotlight` surface (coords fed by app.js as --spot-x / --spot-y). The glow
+ * is a translucent overlay so it reads as a moving highlight without hiding
+ * content. Corners follow the host radius via border-radius: inherit.
+ */
+.spotlight {
+  position: relative;
+}
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    13rem 13rem at var(--spot-x, 50%) var(--spot-y, 50%),
+    hsl(var(--brand-2) / 0.2),
+    transparent 55%
+  );
+}
+.spotlight:hover::after {
+  opacity: 1;
+}
+
+/*
+ * Mouse-aware border glow: a bright brand ring that lights up under the cursor,
+ * masked to the element's border via the classic padding-box XOR technique.
+ * Used on the composer so the input frame feels reactive.
+ */
+.spotlight-border {
+  position: relative;
+}
+.spotlight-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    11rem 11rem at var(--spot-x, 50%) var(--spot-y, 50%),
+    hsl(var(--brand-2) / 0.9),
+    hsl(var(--brand-1) / 0.35) 40%,
+    transparent 62%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.spotlight-border:hover::before {
+  opacity: 1;
+}
+
+/*
+ * Fine film-grain texture. An inline SVG turbulence layer blended over the host
+ * background-color to give flat surfaces a tactile, printed feel. Cheap, static,
+ * theme-agnostic (blend adapts to the underlying color).
+ */
+.texture-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  background-blend-mode: overlay;
+}
+.dark .texture-grain {
+  background-blend-mode: soft-light;
+}
+
+/* Spring easing helper for Tailwind transition utilities. */
+.spring {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* Springy hover bounce for pills, chips, and icon buttons. */
+.hover-bounce {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.28s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.hover-bounce:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+.hover-bounce:active {
+  transform: translateY(0) scale(0.94);
+}
+
+/* Gentle idle bob for hero marks. */
+@keyframes soft-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.float-soft {
+  animation: soft-float 5.5s ease-in-out infinite;
+}
+
+/* Overshoot pop for badges/icons that appear inline. */
+@keyframes pop-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.pop-in {
+  animation: pop-in 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* A little wiggle for icons on hover (settings, brand, etc.). */
+@keyframes icon-wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-9deg);
+  }
+  75% {
+    transform: rotate(9deg);
+  }
+}
+.wiggle-host:hover .wiggle {
+  animation: icon-wiggle 0.5s ease-in-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

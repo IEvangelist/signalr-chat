@@ -2,17 +2,17 @@
     <div class="mx-auto flex h-full w-full max-w-5xl flex-col border-x border-border/60 bg-background/30 backdrop-blur-sm">
 
         @* Chat top bar with a persistent live-connection indicator *@
-        <div class="flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-4 py-2.5">
+        <div class="texture-grain flex shrink-0 items-center justify-between gap-3 border-b border-border/70 px-4 py-2.5">
             <div class="flex min-w-0 items-center gap-2.5">
-                <span class="flex h-8 w-8 items-center justify-center rounded-lg brand-gradient text-white shadow-sm">
-                    <LucideIcon Name="messages-square" CssClass="h-4 w-4" />
+                <span class="wiggle-host flex h-8 w-8 items-center justify-center rounded-lg brand-gradient text-white shadow-sm">
+                    <LucideIcon Name="messages-square" CssClass="wiggle h-4 w-4" />
                 </span>
                 <div class="min-w-0 leading-tight">
                     <p class="truncate text-sm font-semibold tracking-tight">Live chat room</p>
                     <p class="truncate text-xs text-muted-foreground">Shared with everyone online</p>
                 </div>
             </div>
-            <span class="inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors @StatusPillClass @(_connection is ConnectionStatus.Live ? "pill-live" : "")">
+            <span class="hover-bounce inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors @StatusPillClass @(_connection is ConnectionStatus.Live ? "pill-live" : "")">
                 <span class="relative flex h-2 w-2">
                     <span class="absolute inline-flex h-full w-full rounded-full @StatusDotClass @(_connection is ConnectionStatus.Offline ? "" : "status-ping")"></span>
                     <span class="relative inline-flex h-2 w-2 rounded-full @StatusDotClass"></span>
@@ -27,7 +27,7 @@
             @if (_messages.Count is 0)
             {
                 <div class="flex flex-col items-center justify-center gap-4 py-20 text-center">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl brand-gradient text-white shadow-lg shadow-primary/25">
+                    <div class="float-soft spotlight flex h-16 w-16 items-center justify-center rounded-2xl brand-gradient text-white shadow-lg shadow-primary/25">
                         <LucideIcon Name="message-circle" CssClass="h-8 w-8" />
                     </div>
                     <div class="space-y-1">
@@ -44,7 +44,7 @@
                 @if (message.IsGreeting)
                 {
                     <div class="msg-in flex justify-center py-1">
-                        <div class="accent-top w-full max-w-xl overflow-hidden rounded-2xl border border-primary/20 bg-card/70 p-4 shadow-sm backdrop-blur-sm">
+                        <div class="accent-top spotlight w-full max-w-xl overflow-hidden rounded-2xl border border-primary/20 bg-card/70 p-4 shadow-sm backdrop-blur-sm">
                             <div class="mb-2.5 flex items-center gap-2.5">
                                 <span class="flex h-8 w-8 items-center justify-center rounded-lg brand-gradient text-white shadow-sm">
                                     <LucideIcon Name="sparkles" CssClass="h-4 w-4" />
@@ -77,13 +77,13 @@
                                 <span class="font-medium text-foreground/80">@(own ? "You" : message.User)</span>
                                 @if (message.IsChatBot)
                                 {
-                                    <span class="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-primary">
+                                    <span class="pop-in inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-primary">
                                         <LucideIcon Name="zap" CssClass="h-2.5 w-2.5" />bot
                                     </span>
                                 }
                                 <span class="tabular-nums text-[11px] text-muted-foreground/70">@TimeFor(message.Id)</span>
                             </div>
-                            <div class="msg-bubble group relative rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-sm @BubbleClass(message, own) @(own ? "cursor-pointer rounded-br-md" : "rounded-bl-md")"
+                            <div class="msg-bubble spotlight group relative rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-sm @BubbleClass(message, own) @(own ? "cursor-pointer rounded-br-md" : "rounded-bl-md")"
                                  @onclick="@(async () => await StartEdit(message))">
                                 <span class="whitespace-pre-wrap break-words">@((MarkupString)message.Text)</span>
                                 @if (message.IsEdit)
@@ -119,7 +119,7 @@
                 }
             </div>
 
-            <div class="mt-1 rounded-xl border border-input bg-background p-1.5 shadow-sm transition focus-within:ring-2 focus-within:ring-ring">
+            <div class="spotlight-border mt-1 rounded-xl border border-input bg-background p-1.5 shadow-sm transition focus-within:ring-2 focus-within:ring-ring">
                 <input @ref="_messageInput" type="text" autocomplete="off"
                        class="w-full bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground"
                        placeholder="@(_messageId is null ? "Type a message..." : "Edit your message...")"
@@ -131,16 +131,16 @@
                         @foreach (var emoji in _quickEmoji)
                         {
                             <button type="button" title="Add @emoji"
-                                    class="flex h-8 w-8 items-center justify-center rounded-md text-lg leading-none transition hover:bg-accent active:scale-90"
+                                    class="hover-bounce flex h-8 w-8 items-center justify-center rounded-md text-lg leading-none hover:bg-accent"
                                     @onclick="@(() => AppendToMessage(emoji))">
                                 @emoji
                             </button>
                         }
                         <span class="mx-1 h-5 w-px bg-border"></span>
                         <button type="button" title="Voice settings"
-                                class="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-accent hover:text-foreground active:scale-90"
+                                class="wiggle-host hover-bounce flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
                                 @onclick="OpenSettings">
-                            <LucideIcon Name="settings" CssClass="h-4 w-4" />
+                            <LucideIcon Name="settings" CssClass="wiggle h-4 w-4" />
                         </button>
                     </div>
 
