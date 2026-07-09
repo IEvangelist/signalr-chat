@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using BlazingChatter.Client.Extensions;
 using BlazingChatter.Client.Interop;
+using BlazingChatter.Client.Services;
 using BlazingChatter.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -13,9 +14,18 @@ namespace BlazingChatter.Client.Pages;
 
 public sealed partial class ChatRoom : IAsyncDisposable
 {
+    internal enum ConnectionStatus
+    {
+        Connecting,
+        Live,
+        Reconnecting,
+        Offline
+    }
+
     readonly Dictionary<string, ActorMessage> _messages = new(StringComparer.OrdinalIgnoreCase);
     readonly HashSet<Actor> _usersTyping = new();
     readonly HashSet<IDisposable> _hubRegistrations = new();
+    readonly string[] _quickEmoji = { "🤣", "🤬", "🤘" };
     readonly List<double> _voiceSpeeds =
         Enumerable.Range(0, 12).Select(i => (i + 1) * .25).ToList();
     readonly DebounceTimer _debounceTimer = new()
@@ -25,11 +35,13 @@ public sealed partial class ChatRoom : IAsyncDisposable
     };
 
     HubConnection? _hubConnection;
+    ConnectionStatus _connection = ConnectionStatus.Connecting;
 
     string? _messageId;
     string? _message;
     ActorMessage? _lastMessage;
     bool _isTyping;
+    bool _showSettings;
 
     ActorCommand? _lastCommand;
 
@@ -59,6 +71,9 @@ public sealed partial class ChatRoom : IAsyncDisposable
     public required NavigationManager Nav { get; set; }
 
     [Inject]
+    public required ApiEndpoint Api { get; set; }
+
+    [Inject]
     public required IJSRuntime JavaScript { get; set; }
 
     [Inject]
@@ -68,31 +83,98 @@ public sealed partial class ChatRoom : IAsyncDisposable
     public required ILocalStorageService LocalStorage { get; set; }
 
     [Inject]
+    public required IToastService Toasts { get; set; }
+
+    [Inject]
     public required ILogger<ChatRoom> Log { get; set; }
 
     [Inject]
     public required IAccessTokenProvider TokenProvider { get; set; }
 
+    string StatusLabel => _connection switch
+    {
+        ConnectionStatus.Connecting => "Connecting...",
+        ConnectionStatus.Reconnecting => "Reconnecting...",
+        ConnectionStatus.Offline => "Offline",
+        _ => "Live"
+    };
+
+    string StatusDotClass => _connection switch
+    {
+        ConnectionStatus.Live => "bg-success",
+        ConnectionStatus.Offline => "bg-destructive",
+        _ => "bg-primary"
+    };
+
+    string TypingText
+    {
+        get
+        {
+            var names = _usersTyping.Select(actor => actor.User).ToArray();
+            return names.Length switch
+            {
+                1 => $"{names[0]} is typing",
+                2 => $"{names[0]} and {names[1]} are typing",
+                _ => "Several people are typing"
+            };
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl(Nav.ToAbsoluteUri("/chat"),
+            .WithUrl(Api.HubUri,
                 options => options.AccessTokenProvider =
                     async () => await GetAccessTokenValueAsync())
             .WithAutomaticReconnect()
             .AddMessagePackProtocol()
             .Build();
 
+        _hubConnection.Reconnecting += _ =>
+        {
+            _connection = ConnectionStatus.Reconnecting;
+            return InvokeAsync(StateHasChanged);
+        };
+        _hubConnection.Reconnected += _ =>
+        {
+            _connection = ConnectionStatus.Live;
+            return InvokeAsync(StateHasChanged);
+        };
+        _hubConnection.Closed += _ =>
+        {
+            _connection = ConnectionStatus.Offline;
+            return InvokeAsync(StateHasChanged);
+        };
+
         _hubRegistrations.Add(_hubConnection.OnMessageReceived(OnMessageReceivedAsync));
         _hubRegistrations.Add(_hubConnection.OnUserTyping(OnUserTypingAsync));
         _hubRegistrations.Add(
             _hubConnection.OnCommandSignalReceived(OnCommandSignalReceived));
         _hubRegistrations.Add(_hubConnection.OnUserLoggedOn(
-            actor => JavaScript.NotifyAsync("Hey!", $"{actor.User} logged on...")));
+            actor =>
+            {
+                Toasts.Show("Joined", $"{actor.User} logged on", ToastKind.Info);
+                return Task.CompletedTask;
+            }));
         _hubRegistrations.Add(_hubConnection.OnUserLoggedOff(
-            actor => JavaScript.NotifyAsync("Bye!", $"{actor.User} logged off...")));
+            actor =>
+            {
+                Toasts.Show("Left", $"{actor.User} logged off", ToastKind.Info);
+                return Task.CompletedTask;
+            }));
 
-        await _hubConnection.StartAsync();
+        try
+        {
+            await _hubConnection.StartAsync();
+            _connection = ConnectionStatus.Live;
+        }
+        catch (Exception ex)
+        {
+            _connection = ConnectionStatus.Offline;
+            Log.LogError(ex, "Failed to connect to the chat hub.");
+            Toasts.Show("Connection failed", "Could not reach the chat server.", ToastKind.Error);
+        }
+
         await _messageInput.FocusAsync();
 
         await GetVoicesAsync();
@@ -144,7 +226,7 @@ public sealed partial class ChatRoom : IAsyncDisposable
                     });
                 }
 
-                await JavaScript.ScrollIntoViewAsync();
+                await JavaScript.ScrollToBottomAsync("message-scroll");
 
                 StateHasChanged();
             });
@@ -252,6 +334,27 @@ public sealed partial class ChatRoom : IAsyncDisposable
             StateHasChanged();
         }
     }
+
+    void OpenSettings() => _showSettings = true;
+
+    void CloseSettings() => _showSettings = false;
+
+    static string Initial(string? user) =>
+        string.IsNullOrWhiteSpace(user) ? "?" : user.Trim()[..1].ToUpperInvariant();
+
+    static string AvatarClass(ActorMessage message, bool own) =>
+        own
+            ? "bg-primary text-primary-foreground"
+            : message.IsChatBot
+                ? "bg-primary/10 text-primary"
+                : "bg-muted text-muted-foreground";
+
+    static string BubbleClass(ActorMessage message, bool own) =>
+        own
+            ? "bg-primary text-primary-foreground"
+            : message.IsChatBot
+                ? "border border-primary/25 bg-accent text-accent-foreground"
+                : "bg-muted text-foreground";
 
     public async ValueTask DisposeAsync()
     {

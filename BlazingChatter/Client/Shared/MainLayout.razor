@@ -1,28 +1,29 @@
 ﻿@inherits LayoutComponentBase
 
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary box-shadow mb-3">
-        <div class="container">
-            <div class="sig-header">
-                <div class="logo-container">
-                    <div class="logo pr-3">
-                        <svg viewBox="0 0 275 275" id="signalr-svg" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M135 0a135 135 0 1 0 42.59 263.14l-67-67 13.79-38.59h36.5a22.56 22.56 0 0 0 0-45.12H52.11v-1l55.76-55.75h1V74h52a60.89 60.89 0 0 1 2.93 121.7l49.36 49.37A135 135 0 0 0 135 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <span>BlazorR.Chat</span>
-                    </div>
-                </div>
-                <div>
-                    <LoginDisplay />
-                </div>
+<div class="flex h-[100dvh] flex-col overflow-hidden bg-background text-foreground">
+    <header class="z-20 shrink-0 border-b border-border bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <div class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-3 px-4">
+            <a href="" class="flex items-center gap-2.5 text-foreground no-underline">
+                <span class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <svg viewBox="0 0 275 275" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true">
+                        <path d="M135 0a135 135 0 1 0 42.59 263.14l-67-67 13.79-38.59h36.5a22.56 22.56 0 0 0 0-45.12H52.11v-1l55.76-55.75h1V74h52a60.89 60.89 0 0 1 2.93 121.7l49.36 49.37A135 135 0 0 0 135 0z" />
+                    </svg>
+                </span>
+                <span class="flex flex-col leading-none">
+                    <span class="text-sm font-semibold tracking-tight">BlazingChatter</span>
+                    <span class="text-[11px] text-muted-foreground">SignalR live chat</span>
+                </span>
+            </a>
+            <div class="flex items-center gap-1">
+                <ThemeToggle />
+                <LoginDisplay />
             </div>
         </div>
-    </nav>
-</header>
-<div>
-    <main role="main">
+    </header>
+
+    <main class="min-h-0 flex-1">
         @Body
     </main>
 </div>
+
+<Toaster />

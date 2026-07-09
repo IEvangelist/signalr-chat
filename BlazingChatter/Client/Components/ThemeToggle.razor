@@ -1,0 +1,36 @@
+@inject IJSRuntime JavaScript
+
+<button type="button"
+        @onclick="ToggleAsync"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96]"
+        title="@(_isDark ? "Switch to light theme" : "Switch to dark theme")"
+        aria-label="Toggle theme">
+    @if (_isDark)
+    {
+        <LucideIcon Name="sun" CssClass="h-5 w-5" />
+    }
+    else
+    {
+        <LucideIcon Name="moon" CssClass="h-5 w-5" />
+    }
+</button>
+
+@code {
+    bool _isDark;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var theme = await JavaScript.InvokeAsync<string>("app.theme.current");
+            _isDark = theme == "dark";
+            StateHasChanged();
+        }
+    }
+
+    async Task ToggleAsync()
+    {
+        var theme = await JavaScript.InvokeAsync<string>("app.theme.toggle");
+        _isDark = theme == "dark";
+    }
+}

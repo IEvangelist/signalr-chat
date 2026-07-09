@@ -1,0 +1,20 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>14ec1168-11f7-433e-9c83-c1050c23a2fb</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Blazor" Version="13.4.6-preview.1.26319.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Server\BlazingChatter.Server.csproj" />
+    <ProjectReference Include="..\Client\BlazingChatter.Client.csproj" />
+  </ItemGroup>
+
+</Project>

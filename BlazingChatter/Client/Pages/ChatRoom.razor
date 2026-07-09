@@ -1,125 +1,203 @@
-﻿<div class="chat" id="chat">
+﻿<div class="flex h-full flex-col">
 
-    @* Chat messages container *@
-    <div class="pb-lg-4 chat-list">
-        <transition-group name="list" tag="ul" class="chat-messages">
-            @foreach (var (id, message) in _messages)
-        {
-            <li id="@message.Id" class="@(message.IsGreeting ? "greeting" : "")">
-                    <div class="gutter pr-lg-2 text-muted">@message.User</div>
-                    <div class="arrow-container">
-                        <span class="arrow arrow2"></span>
-                        <span class="arrow arrow1"></span>
-                    </div>
-                    <div class="message pl-lg-2 @(OwnsMessage(message.User) ? "canEdit" : "")"
-                         @onclick="@(async () => await StartEdit(message))">
-                        @{
-                        MarkupString messageMarkup = new(message.Text);
-                        <span>
-                                @messageMarkup
-                            </span>
-                        @if (message.IsEdit)
-                        {
-                            <span class="pl-2 text-muted">
-                                    <span class="badge badge-secondary">edited</span>
-                                </span>
-                        }
-                    }
-                    </div>
-                </li>
-        }
-        </transition-group>
-    </div>
-
-    @* Post message input / button *@
-    <section class="post-container">
-        <div class="form-row">
-            <div class="form-group col-lg-10">
-                <div class="input-group input-group-lg mb-3">
-                    <input @ref="_messageInput" type="text" class="form-control" placeholder="Type a message..."
-                           @bind-value="@_message" @oninput="@InitiateDebounceUserIsTyping"
-                           @onkeyup="@(args => OnKeyUp(args))" autocomplete="off">
-                    <div class="input-group-append">
-                        <button class="btn btn-lg btn-primary" @onclick="@SendMessage">Post</button>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group col-lg-2">
-                <div class="emoji float-right">
-                    @foreach (var emoji in new[] { "🤣", "🤬", "🤘" })
-                {
-                    <span @onclick="@(() => AppendToMessage(emoji))">
-                            @emoji
-                        </span>
-                }
-                    <span style="padding-left: 20px" data-toggle="modal" data-target='#settingsModal'>⚙️</span>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            @{
-                static string UsersTypingText(string[]? usersTyping) => usersTyping?.Length switch
-                {
-                    0 => "&nbsp;",
-                    1 => $"💬 <strong>{usersTyping[0]}</strong> is typing...",
-                    2 => $"💬 <strong>${usersTyping[0]}</strong> and <strong>${usersTyping[1]}</strong> are typing...",
-                    _ => "💬 Multiple people are typing..."
-                };
-
-                MarkupString isTypingMarkup = new(UsersTypingText(_usersTyping?.Select(a => a.User).ToArray()));
-                <span class="text-muted @(_usersTyping is { Count: > 0 } ? "flashing" : "")">
-                    @isTypingMarkup
+    @* Connection status (only shown when not live) *@
+    @if (_connection is not ConnectionStatus.Live)
+    {
+        <div class="pointer-events-none absolute inset-x-0 top-16 z-10 flex justify-center px-4">
+            <span class="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium shadow-sm">
+                <span class="relative flex h-2 w-2">
+                    <span class="absolute inline-flex h-full w-full rounded-full @StatusDotClass @(_connection is ConnectionStatus.Offline ? "" : "status-ping")"></span>
+                    <span class="relative inline-flex h-2 w-2 rounded-full @StatusDotClass"></span>
                 </span>
+                @StatusLabel
+            </span>
+        </div>
+    }
+
+    @* Message list *@
+    <div id="message-scroll" class="min-h-0 flex-1 overflow-y-auto">
+        <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6">
+            @if (_messages.Count is 0)
+            {
+                <div class="flex flex-col items-center justify-center gap-4 py-20 text-center">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                        <LucideIcon Name="message-circle" CssClass="h-8 w-8" />
+                    </div>
+                    <div class="space-y-1">
+                        <h2 class="text-lg font-semibold tracking-tight">Say hello</h2>
+                        <p class="max-w-xs text-sm text-muted-foreground">
+                            Messages are live for everyone in the room. Type below to get the conversation going.
+                        </p>
+                    </div>
+                </div>
+            }
+
+            @foreach (var (id, message) in _messages)
+            {
+                @if (message.IsGreeting)
+                {
+                    <div class="flex justify-center">
+                        <span class="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+                            @((MarkupString)message.Text)
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    var own = OwnsMessage(message.User);
+                    <div id="@message.Id" class="flex items-start gap-2.5 @(own ? "flex-row-reverse" : "flex-row")">
+                        <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold @AvatarClass(message, own)">
+                            @if (message.IsChatBot)
+                            {
+                                <LucideIcon Name="bot" CssClass="h-4 w-4" />
+                            }
+                            else
+                            {
+                                @Initial(message.User)
+                            }
+                        </span>
+                        <div class="flex min-w-0 max-w-[78%] flex-col @(own ? "items-end" : "items-start")">
+                            <div class="mb-1 flex items-center gap-1.5 px-0.5 text-xs text-muted-foreground">
+                                <span class="font-medium text-foreground/80">@(own ? "You" : message.User)</span>
+                                @if (message.IsChatBot)
+                                {
+                                    <span class="rounded bg-primary/10 px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-primary">bot</span>
+                                }
+                            </div>
+                            <div class="group relative rounded-lg px-3.5 py-2 text-sm leading-relaxed shadow-sm transition @BubbleClass(message, own) @(own ? "cursor-pointer" : "")"
+                                 @onclick="@(async () => await StartEdit(message))">
+                                <span class="whitespace-pre-wrap break-words">@((MarkupString)message.Text)</span>
+                                @if (message.IsEdit)
+                                {
+                                    <span class="ml-1.5 align-middle text-[11px] opacity-70">(edited)</span>
+                                }
+                                @if (own)
+                                {
+                                    <span class="absolute -left-6 top-1/2 -translate-y-1/2 text-muted-foreground opacity-0 transition group-hover:opacity-100">
+                                        <LucideIcon Name="pencil" CssClass="h-3.5 w-3.5" />
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
             }
         </div>
-    </section>
+    </div>
 
-    @* Voice settings modal *@
-    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Settings</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+    @* Composer *@
+    <div class="shrink-0 border-t border-border bg-card">
+        <div class="mx-auto w-full max-w-3xl px-4 py-3">
+            <div class="flex h-5 items-center gap-2 px-1 text-xs text-muted-foreground">
+                @if (_usersTyping is { Count: > 0 })
+                {
+                    <span class="flex items-center gap-1">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </span>
+                    <span>@TypingText</span>
+                }
+            </div>
+
+            <div class="mt-1 rounded-xl border border-input bg-background p-1.5 shadow-sm transition focus-within:ring-2 focus-within:ring-ring">
+                <input @ref="_messageInput" type="text" autocomplete="off"
+                       class="w-full bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground"
+                       placeholder="@(_messageId is null ? "Type a message..." : "Edit your message...")"
+                       @bind-value="@_message" @oninput="@InitiateDebounceUserIsTyping"
+                       @onkeyup="@(args => OnKeyUp(args))" />
+
+                <div class="flex items-center justify-between gap-2 px-0.5 pt-1">
+                    <div class="flex items-center gap-0.5">
+                        @foreach (var emoji in _quickEmoji)
+                        {
+                            <button type="button" title="Add @emoji"
+                                    class="flex h-8 w-8 items-center justify-center rounded-md text-lg leading-none transition hover:bg-accent active:scale-90"
+                                    @onclick="@(() => AppendToMessage(emoji))">
+                                @emoji
+                            </button>
+                        }
+                        <span class="mx-1 h-5 w-px bg-border"></span>
+                        <button type="button" title="Voice settings"
+                                class="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-accent hover:text-foreground active:scale-90"
+                                @onclick="OpenSettings">
+                            <LucideIcon Name="settings" CssClass="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <button type="button"
+                            class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3.5 text-sm font-medium text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50"
+                            disabled="@(string.IsNullOrWhiteSpace(_message))"
+                            @onclick="@SendMessage">
+                        @if (_messageId is null)
+                        {
+                            <span>Send</span>
+                            <LucideIcon Name="send" CssClass="h-4 w-4" />
+                        }
+                        else
+                        {
+                            <span>Update</span>
+                            <LucideIcon Name="check" CssClass="h-4 w-4" />
+                        }
                     </button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="range">Voice speed: @VoiceSpeed</label>
-                            <input type="range" min="@_voiceSpeeds.Min()" max="@_voiceSpeeds.Max()"
-                                   step=".25" class="form-control-range" id="range" list="speeds"
-                                   value="@VoiceSpeed"
-                                   @onchange="(args => VoiceSpeed = double.TryParse(args.Value?.ToString(), out var speed) ? speed : 1)">
-                            <datalist id="speeds">
-                            @foreach (var speed in _voiceSpeeds)
-                            {
-                                <option value="@speed">speed</option>
-                            }
-                            </datalist>
-                        </div>
-                        <div class="form-group">
-                            <label for="voices">Default voice</label>
-                            <select class="form-control" id="voices" @bind="@Voice">
-                                <option selected>Auto</option>
-                            @if (_voices is { Length: > 0 })
-                            {
-                                @foreach (var voice in _voices)
-                                {
-                                    <option selected="@voice.Default" value="@voice.Name">
-                                        @voice.Name
-                                    </option>
-                                }
-                            }
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@* Voice settings dialog *@
+@if (_showSettings)
+{
+    <div class="fixed inset-0 z-[1200] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @onclick="CloseSettings"></div>
+        <div role="dialog" aria-modal="true"
+             class="animate-message-in relative w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
+            <div class="mb-5 flex items-start justify-between">
+                <div>
+                    <h2 class="text-base font-semibold tracking-tight">Voice settings</h2>
+                    <p class="mt-0.5 text-sm text-muted-foreground">Control how spoken messages are read aloud.</p>
+                </div>
+                <button type="button" @onclick="CloseSettings" aria-label="Close"
+                        class="rounded-md p-1 text-muted-foreground transition hover:bg-accent hover:text-foreground">
+                    <LucideIcon Name="x" CssClass="h-4 w-4" />
+                </button>
+            </div>
+
+            <div class="space-y-5">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label for="voice-speed" class="text-sm font-medium">Voice speed</label>
+                        <span class="rounded-md bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">@VoiceSpeed.ToString("0.00")x</span>
+                    </div>
+                    <input id="voice-speed" type="range" class="w-full accent-primary"
+                           min="@_voiceSpeeds.Min()" max="@_voiceSpeeds.Max()" step=".25"
+                           value="@VoiceSpeed"
+                           @onchange="@(args => VoiceSpeed = double.TryParse(args.Value?.ToString(), out var speed) ? speed : 1)" />
+                </div>
+
+                <div class="space-y-2">
+                    <label for="voices" class="text-sm font-medium">Default voice</label>
+                    <select id="voices" @bind="@Voice"
+                            class="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        <option value="Auto">Auto</option>
+                        @if (_voices is { Length: > 0 })
+                        {
+                            @foreach (var voice in _voices)
+                            {
+                                <option value="@voice.Name">@voice.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="button" @onclick="CloseSettings"
+                        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+}

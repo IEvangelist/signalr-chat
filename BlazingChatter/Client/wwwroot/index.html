@@ -1,52 +1,61 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>BlazoR.Chat</title>
-    <base href="/" />
-    <link href="css/bootstrap/bootstrap.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>BlazingChatter</title>
+    <meta name="description" content="A real time chat built with Blazor WebAssembly, SignalR and .NET Aspire." />
+    <meta name="theme-color" content="#7c3aed" />
+    <base href="/web/" />
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme');
+                if (!t) {
+                    t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.classList.toggle('dark', t === 'dark');
+            } catch (e) { }
+        })();
+    </script>
     <link href="css/app.css" rel="stylesheet" />
-    <link href="BlazingChatter.Client.styles.css" rel="stylesheet" />
     <link href="manifest.json" rel="manifest" />
+    <link rel="icon" href="favicon.ico" />
     <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
-          integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
-          crossorigin="anonymous">
 </head>
 
 <body>
-    <a id="gitlink" target="_blank"
-       href="https://github.com/IEvangelist/signalr-chat">
-        <img style="z-index: 100; position: absolute; top: 0; right: 0; border: 0;"
-             src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
-             alt="Fork me on GitHub">
-    </a>
-
     <div id="app">
-        <div class="row" style="height: 100vh; text-align: center">
-            <div class="w-30 mx-auto mt-4">
-                <span class="text-monospace display-4">Loading, please wait...</span>
-                <br />
-                <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+        <div class="flex h-[100dvh] w-full flex-col items-center justify-center gap-6 bg-background text-foreground">
+            <svg viewBox="0 0 275 275" class="h-14 w-14 text-primary" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true">
+                <path d="M135 0a135 135 0 1 0 42.59 263.14l-67-67 13.79-38.59h36.5a22.56 22.56 0 0 0 0-45.12H52.11v-1l55.76-55.75h1V74h52a60.89 60.89 0 0 1 2.93 121.7l49.36 49.37A135 135 0 0 0 135 0z" />
+            </svg>
+            <div class="flex flex-col items-center gap-3">
+                <span class="text-sm font-medium tracking-tight text-muted-foreground">Loading BlazingChatter</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+    <div id="blazor-error-ui"
+         style="display:none"
+         class="fixed inset-x-0 bottom-0 z-[1000] flex items-center justify-between gap-4 border-t border-border bg-destructive px-5 py-3 text-sm text-destructive-foreground shadow-lg">
+        <span>An unhandled error has occurred.</span>
+        <span class="flex items-center gap-4">
+            <a href="" class="reload font-medium underline underline-offset-4">Reload</a>
+            <a class="dismiss cursor-pointer text-lg leading-none">&times;</a>
+        </span>
     </div>
+
     <script src="_content/Blazor.SpeechSynthesis.WebAssembly/blazorators.speechSynthesis.g.js"></script>
     <script src="_content/Microsoft.Authentication.WebAssembly.Msal/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js"></script>
     <script src="app.js"></script>
 </body>
 

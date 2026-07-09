@@ -1,11 +1,19 @@
 <CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+    <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
                 @if (context?.User?.Identity?.IsAuthenticated ?? false)
                 {
-                    <p>You are not authorized to access this resource.</p>
+                    <div class="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+                            <LucideIcon Name="log-in" CssClass="h-7 w-7" />
+                        </div>
+                        <h1 class="text-xl font-semibold tracking-tight">Access denied</h1>
+                        <p class="max-w-sm text-sm text-muted-foreground">
+                            You are signed in, but this account is not authorized to access the chat.
+                        </p>
+                    </div>
                 }
                 else
                 {

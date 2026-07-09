@@ -5,17 +5,38 @@
 
 <AuthorizeView>
     <Authorizing>
-        <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+        <span class="inline-flex h-9 w-9 items-center justify-center text-muted-foreground">
+            <LucideIcon Name="loader" CssClass="h-5 w-5 animate-spin" />
+        </span>
     </Authorizing>
     <Authorized>
-        <button class="nav-link btn btn-link" @onclick="OnLogOut">Log out</button>
+        <div class="flex items-center gap-2">
+            <span class="hidden items-center gap-2 sm:flex">
+                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    @Initial(context.User.Identity?.Name)
+                </span>
+                <span class="max-w-[10rem] truncate text-sm font-medium">@context.User.Identity?.Name</span>
+            </span>
+            <button type="button" @onclick="OnLogOut"
+                    class="inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]">
+                <LucideIcon Name="log-out" CssClass="h-4 w-4" />
+                <span class="hidden sm:inline">Log out</span>
+            </button>
+        </div>
     </Authorized>
     <NotAuthorized>
-        <a href="authentication/login">Log in</a>
+        <a href="authentication/login"
+           class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3.5 text-sm font-medium text-primary-foreground no-underline shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]">
+            <LucideIcon Name="log-in" CssClass="h-4 w-4" />
+            Log in
+        </a>
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
     void OnLogOut(MouseEventArgs args) =>
         Navigation.NavigateToLogout("authentication/logout");
+
+    static string Initial(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? "?" : name.Trim()[..1].ToUpperInvariant();
 }

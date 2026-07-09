@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/blazing-chat.yml" />
+    <File Path="global.json" />
+    <File Path="NuGet.config" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="BlazingChatter/AppHost/BlazingChatter.AppHost.csproj" />
+  <Project Path="BlazingChatter/Client/BlazingChatter.Client.csproj" />
+  <Project Path="BlazingChatter/Server/BlazingChatter.Server.csproj" />
+  <Project Path="BlazingChatter/ServiceDefaults/BlazingChatter.ServiceDefaults.csproj" />
+  <Project Path="BlazingChatter/Shared/BlazingChatter.Shared.csproj" />
+</Solution>

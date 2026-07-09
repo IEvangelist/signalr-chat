@@ -1,4 +1,5 @@
-name: Deploy App
+name: Build
+
 on:
   push:
     branches: [ main ]
@@ -10,38 +11,86 @@ on:
     - '**.html'
     - '**.yml'
     - '**.csproj'
+    - '**.slnx'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
 env:
-  AZURE_WEBAPP_NAME: blazing-chat
-  AZURE_WEBAPP_PACKAGE_PATH: BlazingChatter\Server/publish
-  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.blazing_chat_a434 }}
   CONFIGURATION: Release
-  DOTNET_CORE_VERSION: 7.0.x
-  WORKING_DIRECTORY: BlazingChatter\Server
+  SOLUTION: blazing-chat.slnx
+
 jobs:
-  build-and-deploy:
-    runs-on: windows-latest
+  build:
+    name: Build & test
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@main
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@main
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+        global-json-file: global.json
+
+    # Node is required by the client's MSBuild Tailwind target, which
+    # compiles Styles/app.tailwind.css -> wwwroot/css/app.css during build.
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
     - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+      run: dotnet restore ${{ env.SOLUTION }}
+
     - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+      run: dotnet build ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }} --no-restore
+
     - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
-    - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
-    - name: Deploy to Azure WebApp
-      uses: azure/webapps-deploy@v2.2.6
+      run: dotnet test ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal
+
+  # ---------------------------------------------------------------------------
+  # Deployment target moved with the Aspire migration.
+  #
+  # This app is now an Aspire distributed application (AppHost + gateway + API +
+  # Blazor WASM). The previous single-site Azure App Service publish profile
+  # (secret `blazing_chat_a434`, app `blazing-chat`) no longer maps 1:1 to the
+  # multi-resource model. The natural Aspire target is Azure Container Apps (or
+  # Docker Compose), published from the AppHost:
+  #
+  #   dotnet tool install -g aspire.cli --prerelease
+  #   aspire publish BlazingChatter/AppHost -o ./artifacts
+  #   # then `azd up` / `aspire deploy` against the provisioned environment
+  #
+  # This job is intentionally disabled until a deployment target is chosen and
+  # its credentials are configured as repository secrets. Flip `if: false` to a
+  # real condition (e.g. push to main) once the environment exists.
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy (disabled - target TBD)
+    needs: build
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        publish-profile: ${{ env.AZURE_WEBAPP_PUBLISH_PROFILE }}
-    - name: Publish Artifacts
-      uses: actions/upload-artifact@main
+        global-json-file: global.json
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
       with:
-        name: webapp
-        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        node-version: 20
+
+    - name: Install Aspire CLI
+      run: dotnet tool install -g aspire.cli --prerelease
+
+    - name: Publish Aspire artifacts
+      run: aspire publish BlazingChatter/AppHost -o ./artifacts
+
+    - name: Upload deployment artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: aspire-artifacts
+        path: ./artifacts

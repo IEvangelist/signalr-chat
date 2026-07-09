@@ -1,0 +1,51 @@
+@using BlazingChatter.Client.Services
+@implements IDisposable
+@inject IToastService ToastService
+
+<div class="pointer-events-none fixed inset-x-0 bottom-0 z-[1100] flex flex-col items-center gap-2 p-4 sm:inset-x-auto sm:right-0 sm:items-end">
+    @foreach (var toast in ToastService.Toasts)
+    {
+        <div role="status"
+             class="animate-message-in pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-border bg-popover px-4 py-3 text-popover-foreground shadow-lg">
+            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full @AccentFor(toast.Kind)">
+                <LucideIcon Name="@IconFor(toast.Kind)" CssClass="h-3.5 w-3.5" />
+            </span>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium leading-tight">@toast.Title</p>
+                @if (!string.IsNullOrWhiteSpace(toast.Description))
+                {
+                    <p class="mt-0.5 truncate text-sm text-muted-foreground">@toast.Description</p>
+                }
+            </div>
+            <button type="button"
+                    class="-mr-1 -mt-1 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    @onclick="() => ToastService.Remove(toast.Id)"
+                    aria-label="Dismiss">
+                <LucideIcon Name="x" CssClass="h-4 w-4" />
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized() => ToastService.OnChange += OnToastsChanged;
+
+    void OnToastsChanged() => InvokeAsync(StateHasChanged);
+
+    static string AccentFor(ToastKind kind) => kind switch
+    {
+        ToastKind.Success => "bg-success/15 text-success",
+        ToastKind.Warning => "bg-primary/15 text-primary",
+        ToastKind.Error => "bg-destructive/15 text-destructive",
+        _ => "bg-primary/15 text-primary"
+    };
+
+    static string IconFor(ToastKind kind) => kind switch
+    {
+        ToastKind.Success => "check",
+        ToastKind.Error => "x",
+        _ => "message-circle"
+    };
+
+    public void Dispose() => ToastService.OnChange -= OnToastsChanged;
+}

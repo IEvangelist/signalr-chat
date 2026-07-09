@@ -1,14 +1,21 @@
 ﻿@inject NavigationManager Navigation
 
-<div class="jumbotron jumbotron-fluid">
-    <div class="container">
-        <h1 class="display-4">404 - page not found</h1>
-        <p class="lead">Not sure what you're looking for, but it's not here...</p>
-        <hr class="my-4" />
-        <button class="btn btn-lg btn-primary float-right" @onclick="GoHome">
-            <i class="pr-2 fas fa-home" aria-hidden="true"></i> Home
-        </button>
+<div class="flex h-full flex-col items-center justify-center gap-6 px-4 text-center">
+    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+        <LucideIcon Name="message-circle" CssClass="h-8 w-8" />
     </div>
+    <div class="space-y-2">
+        <p class="text-sm font-medium text-primary">404</p>
+        <h1 class="text-2xl font-semibold tracking-tight">This page went quiet</h1>
+        <p class="max-w-sm text-sm text-muted-foreground">
+            We could not find what you were looking for. Let us get you back to the conversation.
+        </p>
+    </div>
+    <button type="button" @onclick="GoHome"
+            class="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]">
+        <LucideIcon Name="house" CssClass="h-4 w-4" />
+        Back to chat
+    </button>
 </div>
 
 @code {

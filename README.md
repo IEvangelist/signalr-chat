@@ -1,21 +1,120 @@
 ﻿# SignalR: Chat (Advanced)
 
-[![Deploy App](https://github.com/IEvangelist/signalr-chat/actions/workflows/blazing-chat.yml/badge.svg)](https://github.com/IEvangelist/signalr-chat/actions/workflows/blazing-chat.yml)
+[![Build](https://github.com/IEvangelist/signalr-chat/actions/workflows/blazing-chat.yml/badge.svg)](https://github.com/IEvangelist/signalr-chat/actions/workflows/blazing-chat.yml)
 
-## 💯 [Demo App](https://blazing-chat.azurewebsites.net)
+A real-time chat sample built on **ASP.NET Core SignalR** and **Blazor WebAssembly**, running on **.NET 10** and orchestrated with **.NET Aspire**. Messages are broadcast live to everyone in the room, joke chatbots can be commanded inline, and replies can be translated and spoken aloud.
+
+The UI is a **shadcn-inspired design system** built with **Tailwind CSS v4**: dark-mode first with a light option, a single .NET-violet accent over zinc neutrals, message bubbles, avatars, live connection status, an emoji composer, and a voice-settings dialog.
+
+## Architecture
+
+This solution is a distributed Aspire application. The AppHost orchestrates the resources, and a Blazor gateway serves the WebAssembly client and fronts the backend API.
+
+```mermaid
+flowchart LR
+    browser([Browser]) --> gateway
+    subgraph aspire[Aspire AppHost]
+        gateway[gateway<br/>Blazor gateway + YARP]
+        web[web<br/>Blazor WASM client]
+        api[api<br/>ASP.NET Core + SignalR]
+        gateway -->|serves /web| web
+        gateway -->|proxies /web/_api| api
+    end
+    web -. SignalR /chat .-> api
+```
+
+| Project | Resource | Role |
+|---------|----------|------|
+| `BlazingChatter.AppHost` | (host) | Aspire orchestration and the Blazor gateway |
+| `BlazingChatter.Server` | `api` | Minimal API, the `/chat` SignalR hub, joke bots, translation |
+| `BlazingChatter.Client` | `web` | Standalone Blazor WebAssembly client (Tailwind UI) |
+| `BlazingChatter.ServiceDefaults` | (shared) | OpenTelemetry, health checks, service discovery defaults |
+| `BlazingChatter.Shared` | (shared) | Message contracts shared by client and server |
+
+The gateway serves the client under the `/web` path prefix. The client resolves the API base at startup from the gateway's per-app configuration endpoint and connects the SignalR hub to `{apiBase}/chat`.
+
+## Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0.300 or newer; pinned in `global.json`)
+- [Node.js](https://nodejs.org) 20 or newer (used by the client's MSBuild target to compile Tailwind CSS)
+- [Aspire CLI](https://aspire.dev) (`dotnet tool install -g aspire.cli --prerelease`)
 
 ## Run locally
 
-To run locally, you'll need to have several environment variables created. The `configuration` object is expecting a value that doesn't exist. For the translator specifically, you'll need to create an Azure account, and corresponding Azure resource for the translator. There is a free tier, you can sign up here:
+From the AppHost directory:
 
-[Azure Translator Docs: Create a Translator resource](https://docs.microsoft.com/azure/cognitive-services/translator/translator-how-to-signup?wt.mc_id=dapine)
+```bash
+cd BlazingChatter/AppHost
+aspire run
+```
 
-#### Environment Variables
+The CLI prints a dashboard URL and the gateway endpoint. Open the gateway URL (it ends in `/web`) to use the app. If you run over plain HTTP, set `ASPIRE_ALLOW_UNSECURED_TRANSPORT=true` first.
+
+You can also launch the AppHost directly with `dotnet run` from `BlazingChatter/AppHost`.
+
+## Frontend / Tailwind
+
+The client styles live in `BlazingChatter/Client/Styles/app.tailwind.css` and compile to `wwwroot/css/app.css`. A `dotnet build` of the client runs the Tailwind CLI automatically (via the `BuildTailwindCss` MSBuild target), so no manual step is needed.
+
+For fast iteration on styles while the app is running:
+
+```bash
+cd BlazingChatter/Client
+npm install
+npm run watch:css
+```
+
+To build without Node available (using the committed `app.css`), pass `-p:RunTailwind=false` to `dotnet build`.
+
+## Configuration and secrets
+
+### Translation (optional)
+
+Joke translation uses Azure AI Translator. Without it, jokes are still delivered in English. Create a Translator resource ([free tier available](https://learn.microsoft.com/azure/ai-services/translator/create-translator-resource)) and supply these settings to the **`api`** project (`BlazingChatter.Server`), either as environment variables or user secrets:
 
 | Name | Value |
 |------|-------|
-| `TranslateTextOptions__ApiKey` | <Your Translator Resource's API key> |
+| `TranslateTextOptions__ApiKey` | Your Translator resource key |
 | `TranslateTextOptions__Endpoint` | `https://api.cognitive.microsofttranslator.com/` |
-| `TranslateTextOptions__Region` | <Your Translator Resource's Region> |
+| `TranslateTextOptions__Region` | Your Translator resource region |
 
-> After you've created the resource, and added the environment variables, close and reopen your IDE. It should then work.
+```bash
+cd BlazingChatter/Server
+dotnet user-secrets set "TranslateTextOptions:ApiKey" "<your-key>"
+dotnet user-secrets set "TranslateTextOptions:Endpoint" "https://api.cognitive.microsofttranslator.com/"
+dotnet user-secrets set "TranslateTextOptions:Region" "<your-region>"
+```
+
+### Authentication (Azure AD B2C)
+
+Sign-in uses Azure AD B2C via MSAL. The sample ships with the `dotnetdocs` B2C tenant settings in `appsettings.json` on both the `api` and `web` projects. To use your own tenant, update those values.
+
+Because the client is served under `/web`, the MSAL redirect URI is:
+
+```
+{origin}/web/authentication/login-callback
+```
+
+Register that reply URL in your B2C app registration, otherwise sign-in will fail.
+
+## Using the chat
+
+Type a message and press Enter to broadcast it live. Command the joke bots inline:
+
+```
+(joke|jokes)[:dad|chucknorris][:en (or another two-letter locale, e.g. bg)]
+```
+
+- `joke` tells a single Dad joke in English.
+- `jokes:chucknorris:bg` starts the Chuck Norris bot telling jokes continuously in Bulgarian.
+- `stop` issues a global stop for the running bots.
+
+## Deployment
+
+The previous single-site Azure App Service deployment does not map 1:1 to the Aspire multi-resource model. The natural target is Azure Container Apps (or Docker Compose), published from the AppHost:
+
+```bash
+aspire publish BlazingChatter/AppHost -o ./artifacts
+```
+
+The CI `deploy` job is disabled pending a target decision. See `.github/workflows/blazing-chat.yml` for the wiring.

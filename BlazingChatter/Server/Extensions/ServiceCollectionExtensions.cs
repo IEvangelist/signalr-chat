@@ -20,6 +20,24 @@ static class ServiceCollectionExtensions
             options =>
             {
                 options.TokenValidationParameters.NameClaimType = "name";
+
+                // SignalR (WebSockets) can't set the Authorization header, so it passes the
+                // access token as a query-string parameter. Read it for the chat hub path.
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (string.IsNullOrEmpty(accessToken) is false &&
+                            path.StartsWithSegments("/chat"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         return services;
