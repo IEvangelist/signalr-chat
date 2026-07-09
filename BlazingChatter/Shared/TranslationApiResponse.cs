@@ -19,3 +19,14 @@ public record Translation(
 public record Alignment(string Proj);
 
 public record SentenceLength(int[] SrcSentLen, int[] TransSentLen);
+
+/// <summary>
+/// Shape of a response from the free, key-less MyMemory translation API
+/// (https://api.mymemory.translated.net/get?q=...&amp;langpair=en|xx). Used as the
+/// default provider so translation works out of the box, with no Azure key required.
+/// </summary>
+public record MyMemoryResponse(
+    MyMemoryMatch? ResponseData,
+    int? ResponseStatus);
+
+public record MyMemoryMatch(string? TranslatedText);

@@ -73,14 +73,25 @@ static class ServiceCollectionExtensions
         services.AddHttpClient<ITranslationService, TranslationService>(
             client =>
             {
-                if (configuration["TranslateTextOptions:Endpoint"] is string endpoint)
+                // Only configure Azure Translator when an endpoint AND key are supplied.
+                // Otherwise the service falls back to the free, key-less MyMemory API
+                // (called with absolute URLs), so translation works with no setup.
+                var endpoint = configuration["TranslateTextOptions:Endpoint"];
+                var apiKey = configuration["TranslateTextOptions:ApiKey"];
+
+                if (!string.IsNullOrWhiteSpace(endpoint) &&
+                    !string.IsNullOrWhiteSpace(apiKey))
                 {
                     client.BaseAddress = new(endpoint);
+                    client.DefaultRequestHeaders
+                          .Add("Ocp-Apim-Subscription-Key", apiKey);
+
+                    if (configuration["TranslateTextOptions:Region"] is { Length: > 0 } region)
+                    {
+                        client.DefaultRequestHeaders
+                              .Add("Ocp-Apim-Subscription-Region", region);
+                    }
                 }
-                client.DefaultRequestHeaders
-                      .Add("Ocp-Apim-Subscription-Key", configuration["TranslateTextOptions:ApiKey"]);
-                client.DefaultRequestHeaders
-                      .Add("Ocp-Apim-Subscription-Region", configuration["TranslateTextOptions:Region"]);
             });
 
         return services.AddHostedService<ChatBot>();
