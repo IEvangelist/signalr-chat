@@ -6,6 +6,28 @@ A real-time chat sample built on **ASP.NET Core SignalR** and **Blazor WebAssemb
 
 The UI is a **shadcn-inspired design system** built with **Tailwind CSS v4**: dark-mode first with a light option, a violet→fuchsia→indigo brand gradient over zinc neutrals, an animated aurora backdrop, gradient message bubbles and avatars, a persistent live-connection status pill, an emoji composer, and a voice-settings dialog that prefers natural (non-robotic) voices.
 
+## Demos
+
+> Short, silent screen recordings — press ▶ to play.
+
+### Real-time chat with the inline joke bot
+
+Messages broadcast live over SignalR, with the `joke:dad` bot replying in real time.
+
+<video src="https://github.com/IEvangelist/signalr-chat/raw/main/media/demo-chat.mp4" controls muted width="100%"></video>
+
+### Motion, texture, and theming
+
+Cursor-reactive spotlight highlights, spring motion, and one-click dark/light theming.
+
+<video src="https://github.com/IEvangelist/signalr-chat/raw/main/media/demo-motion.mp4" controls muted width="100%"></video>
+
+### Natural voice replies
+
+Spoken replies default to a natural (non-robotic) voice, with an adjustable playback speed.
+
+<video src="https://github.com/IEvangelist/signalr-chat/raw/main/media/demo-voice.mp4" controls muted width="100%"></video>
+
 ## Screenshots
 
 > These images are theme-aware — GitHub shows the dark or light capture to match your current theme.
