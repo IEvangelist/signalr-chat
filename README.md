@@ -8,25 +8,25 @@ The UI is a **shadcn-inspired design system** built with **Tailwind CSS v4**: da
 
 ## Demos
 
-> Short, silent screen recordings — press ▶ to play.
+> Silent screen recordings — click a thumbnail to play the full clip in GitHub's video player.
 
 ### Real-time chat with the inline joke bot
 
 Messages broadcast live over SignalR, with the `joke:dad` bot replying in real time.
 
-<video src="https://github.com/IEvangelist/signalr-chat/raw/main/media/demo-chat.mp4" controls muted width="100%"></video>
+[![Play the real-time chat demo](media/demo-chat-poster.png)](media/demo-chat.mp4)
 
 ### Motion, texture, and theming
 
 Cursor-reactive spotlight highlights, spring motion, and one-click dark/light theming.
 
-<video src="https://github.com/IEvangelist/signalr-chat/raw/main/media/demo-motion.mp4" controls muted width="100%"></video>
+[![Play the motion and theming demo](media/demo-motion-poster.png)](media/demo-motion.mp4)
 
 ### Natural voice replies
 
 Spoken replies default to a natural (non-robotic) voice, with an adjustable playback speed.
 
-<video src="https://github.com/IEvangelist/signalr-chat/raw/main/media/demo-voice.mp4" controls muted width="100%"></video>
+[![Play the voice settings demo](media/demo-voice-poster.png)](media/demo-voice.mp4)
 
 ## Screenshots
 
